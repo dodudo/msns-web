@@ -155,6 +155,8 @@
 </template>
 <script>
 import { formatDate } from "../assets/formatDate";
+import Stomp from "stompjs";
+import { MQTT_SERVICE, MQTT_USERNAME, MQTT_PASSWORD } from "../mqtt";
 export default {
   props: {
     dynamicSearch: {
@@ -182,7 +184,9 @@ export default {
     showFoldBtn: false,
     totalPage: 0,
     currentPage: 1,
-    newsDynamicSearch: {}
+    newsDynamicSearch: {},
+    dynamicClient: Stomp.client(MQTT_SERVICE),
+    dynamicUpdate: true
   }),
   methods: {
     showComment(e) {
@@ -237,9 +241,38 @@ export default {
           }
         }
       });
+    },
+
+    onConnected: function() {
+      //订阅频道
+      const topic = "/exchange/msns.dynamic.exchange/dynamic.update";
+
+      this.dynamicClient.subscribe(topic, this.responseCallback, this.onFailed);
+      // console.log(fram);
+    },
+    onFailed(fram) {
+      console.log(fram);
+    },
+    responseCallback(fram) {
+      this.dynamicUpdate = !this.dynamicUpdate;
+      console.log("返回" + fram.body);
+    },
+    connect() {
+      const headers = {
+        login: MQTT_USERNAME,
+        passcode: MQTT_PASSWORD,
+        host: "/msns",
+        "heart-beat": "0,0"
+      };
+      this.dynamicClient.connect(headers, this.onConnected, this.onFailed);
     }
   },
   watch: {
+    dynamicUpdate() {
+      setTimeout(() => {
+        this.searAllDynamic();
+      }, 200);
+    },
     currentPage() {
       this.searAllDynamic();
     },
@@ -262,6 +295,7 @@ export default {
     this.$nextTick(() => {
       this.searAllDynamic();
     });
+    this.connect();
   },
   updated() {},
   mounted() {
