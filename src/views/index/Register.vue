@@ -12,14 +12,20 @@
               <v-card-text>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field
-                    v-model="name"
+                    v-model="user.uname"
                     :counter="10"
                     :rules="nameRules"
                     label="用户名"
                     required
                   ></v-text-field>
-                  <v-text-field v-model="email" :rules="emailRules" label="E-mail" required></v-text-field>
-                  <v-text-field v-model="password" :rules="passwordRules" label="密码" required></v-text-field>
+                  <v-text-field
+                    ref="email"
+                    v-model="user.email"
+                    :rules="emailRules"
+                    label="E-mail"
+                    required
+                  ></v-text-field>
+                  <v-text-field v-model="user.upassword" :rules="passwordRules" label="密码" required></v-text-field>
                   <v-text-field
                     @keydown.native="testPassword()"
                     @keyup.native="testPassword()"
@@ -60,6 +66,7 @@
 <script>
 export default {
   data: () => ({
+    user: {},
     valid: true,
     name: "",
     nameRules: [
@@ -69,7 +76,7 @@ export default {
     email: "",
     emailRules: [
       v => !!v || "E-mail is required",
-      v => /.+@.+\..+/.test(v) || "E-mail输入错误"
+      v => /^\w+@[a-z0-9]+\.[a-z]{2,4}$/.test(v) || "E-mail输入错误"
     ],
     password: "",
     passwordRules: [
@@ -92,6 +99,25 @@ export default {
     validate() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
+        // var user = {};
+        // user.uname = this.name;
+        // user.email = this.email;
+        // user.upassword = this.password;
+
+        this.$http({
+          method: "post",
+          url: "/user/register",
+          data: this.user,
+          params: { code: this.checkCode }
+        })
+          .then(() => {
+            if (confirm("注册成功，您现在要登陆吗？")) {
+              this.$router.push("/login");
+            }
+          })
+          .catch(err => {
+            console.log(err.response.data);
+          });
       }
     },
     toLogin() {
@@ -100,7 +126,21 @@ export default {
     sendMsg() {
       //   if (this.isClick) {
       //   }
+
+      if (this.user.email == null || this.user.email == "") {
+        alert("请填写邮箱！");
+        return;
+      }
       this.getCheckCodeBtn(this.totalTime);
+      console.log(this.user.email);
+
+      this.$http({
+        method: "post",
+        url: "/user/code",
+        data: this.user.email
+      }).catch(() => {
+        console.log("验证码发送失败！");
+      });
     },
     getCheckCodeBtn(totalTime) {
       let _this = this;
@@ -124,7 +164,7 @@ export default {
       } else {
         if (!/^(\w){6,20}$/.test(this.repassword)) {
           this.repasswordRules = ["只能输入6-20个字母、数字、下划线"];
-        } else if (this.password != this.repassword) {
+        } else if (this.user.upassword != this.repassword) {
           this.repasswordRules = ["密码不一致"];
         } else {
           this.repasswordRules = [true];
