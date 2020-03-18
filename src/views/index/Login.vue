@@ -2,7 +2,6 @@
   <v-app>
     <v-card height="100vh" flat :img="require('../../assets/abg.jpg')">
       <v-container fluid fill-height>
-        <TopBar></TopBar>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <v-card color="rgba(255,255,255,.7)" class="elevation-12">
@@ -20,20 +19,11 @@
                     required
                   ></v-text-field>
 
-                  <v-text-field
-                    v-model="password"
-                    :rules="passwordRules"
-                    label="密码"
-                    required
-                  ></v-text-field>
+                  <v-text-field v-model="password" :rules="passwordRules" label="密码" required></v-text-field>
 
                   <div class="mx-auto">
-                    <v-btn :disabled="!valid" color="#fb864c" @click="validate"
-                      >登录</v-btn
-                    >
-                    <v-btn class="ma-2" color="#fb864c" @click="toRegister"
-                      >没有账号？去注册</v-btn
-                    >
+                    <v-btn :disabled="!valid" color="#fb864c" @click="validate">登录</v-btn>
+                    <v-btn class="ma-2" color="#fb864c" @click="toRegister">没有账号？去注册</v-btn>
                   </div>
                 </v-form>
               </v-card-text>
@@ -45,7 +35,6 @@
   </v-app>
 </template>
 <script>
-import TopBar from "../../components/TopBar";
 export default {
   data: () => ({
     valid: true,
@@ -71,8 +60,6 @@ export default {
       this.$router.push("/register");
     }
   },
-  components: {
-    TopBar
-  }
+  components: {}
 };
 </script>
