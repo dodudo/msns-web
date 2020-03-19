@@ -18,12 +18,26 @@ export default {
       sortBy: "publishDate",
       desc: true
     },
-    dynamics: []
+    dynamics: [],
+    userInfo: {}
   }),
   components: {
     News,
     LeftSidebar,
     Edit
+  },
+  created() {
+    this.$http({
+      method: "get",
+      url: "/auth/verify"
+    })
+      .then(resp => {
+        this.userInfo = resp.data;
+        // console.log(this.userInfo);
+      })
+      .catch(() => {
+        this.userInfo = {};
+      });
   },
   mounted() {
     // console.log("main-create");

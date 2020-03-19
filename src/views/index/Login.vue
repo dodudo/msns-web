@@ -55,12 +55,13 @@ export default {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
         this.$http({
-          method: "get",
-          url: "/user/login",
+          method: "post",
+          url: "/auth/accredit",
           params: { uname: this.name, upassword: this.password }
         })
-          .then(resp => {
-            console.log(resp.data);
+          .then(() => {
+            // console.log(resp.data);
+            this.$router.push("/index/main");
           })
           .catch(err => {
             console.log(err);
