@@ -54,6 +54,17 @@ export default {
     validate() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
+        this.$http({
+          method: "get",
+          url: "/user/login",
+          params: { uname: this.name, upassword: this.password }
+        })
+          .then(resp => {
+            console.log(resp.data);
+          })
+          .catch(err => {
+            console.log(err);
+          });
       }
     },
     toRegister() {

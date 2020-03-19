@@ -172,6 +172,52 @@ export default {
       }
     }
   },
-  components: {}
+  watch: {
+    "user.email"() {
+      console.log();
+
+      if (
+        this.user.email != null &&
+        /^\w+@[a-z0-9]+\.[a-z]{2,4}$/.test(this.user.email)
+      ) {
+        this.$http({
+          method: "get",
+          url: `/user/check/${this.user.email}/3`
+        }).then(resp => {
+          console.log(resp);
+          if (!resp.data) {
+            this.emailRules = ["此邮箱已经注册过啦！"];
+          } else {
+            this.emailRules = [true];
+          }
+        });
+      } else {
+        this.emailRules = [
+          v => !!v || "E-mail is required",
+          v => /^\w+@[a-z0-9]+\.[a-z]{2,4}$/.test(v) || "E-mail输入错误"
+        ];
+      }
+    },
+    "user.uname"() {
+      // console.log();
+      if (this.user.uname != null && /^[a-zA-Z]{4,10}$/.test(this.user.uname)) {
+        this.$http({
+          method: "get",
+          url: `/user/check/${this.user.uname}/1`
+        }).then(resp => {
+          console.log(resp);
+          if (!resp.data) {
+            this.nameRules = ["此用户名已经存在啦，请换一个！"];
+          } else {
+            this.nameRules = [
+              v => !!v || "Name is required",
+              v =>
+                /^[a-zA-Z]{4,10}$/.test(v) || "只能输入4-10个以字母开头的字串"
+            ];
+          }
+        });
+      }
+    }
+  }
 };
 </script>
