@@ -268,6 +268,11 @@ export default {
     }
   },
   watch: {
+    "$store.state.userInfo"() {
+      this.userInfo = this.$store.state.userInfo;
+      console.log(this.userInfo);
+      this.$store.dispatch("changeUserInfo", this.userInfo);
+    },
     dynamicUpdate() {
       setTimeout(() => {
         this.searAllDynamic();

@@ -246,6 +246,23 @@ export default {
       min_leftbar: false
     };
   },
+  created() {
+    this.$http({
+      method: "get",
+      url: "/auth/verify"
+    })
+      .then(resp => {
+        this.userInfo = resp.data;
+        this.$store.dispatch("changeUserInfo", resp.data);
+        console.log(this.$store.state.userInfo);
+
+        // console.log(this.userInfo);
+      })
+      .catch(() => {
+        this.userInfo = {};
+        this.$store.dispatch("changeUserInfo", this.userInfo);
+      });
+  },
   watch: {},
   methods: {
     querySelections(v) {

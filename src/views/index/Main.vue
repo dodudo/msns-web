@@ -26,18 +26,13 @@ export default {
     LeftSidebar,
     Edit
   },
-  created() {
-    this.$http({
-      method: "get",
-      url: "/auth/verify"
-    })
-      .then(resp => {
-        this.userInfo = resp.data;
-        // console.log(this.userInfo);
-      })
-      .catch(() => {
-        this.userInfo = {};
-      });
+  created() {},
+  watch: {
+    "$store.state.userInfo"() {
+      this.userInfo = this.$store.state.userInfo;
+      console.log(this.userInfo);
+      this.$store.dispatch("changeUserInfo", this.userInfo);
+    }
   },
   mounted() {
     // console.log("main-create");
