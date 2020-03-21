@@ -211,7 +211,7 @@
 
                       <v-btn color="green darken-1" text @click="dialog = false">抱歉，我点错了</v-btn>
 
-                      <v-btn color="green darken-1" text @click="dialog = false">是的，我要退出</v-btn>
+                      <v-btn color="green darken-1" text @click="deleteCookie()">是的，我要退出</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -287,6 +287,20 @@ export default {
         .catch(() => {
           this.userCountInfo = {};
           this.$store.dispatch("changeUserCountInfo", this.userCountInfo);
+        });
+    },
+    deleteCookie() {
+      this.$http({
+        method: "get",
+        url: "/auth/deleteCookie"
+      })
+        .then(() => {
+          this.dialog = false;
+          document.reload();
+          // console.log(this.userInfo);
+        })
+        .catch(() => {
+          alert("退出失败！");
         });
     },
     verify() {

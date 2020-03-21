@@ -9,6 +9,7 @@
 import News from "../../components/News";
 import LeftSidebar from "../../components/LeftSidebar";
 import Edit from "../../components/Edit";
+import { verify } from "../../verify";
 export default {
   data: () => ({
     screenWidth: "",
@@ -28,28 +29,9 @@ export default {
     Edit
   },
   created() {
-    this.$http({
-      method: "get",
-      url: "/auth/verify"
-    })
-      .then(resp => {
-        this.userInfo = resp.data;
-        this.$store.dispatch("changeUserInfo", resp.data);
-        // console.log(this.$store.state.userInfo);
+    this.verify();
+  },
 
-        // console.log(this.userInfo);
-      })
-      .catch(() => {
-        this.userInfo = {};
-        this.$store.dispatch("changeUserInfo", this.userInfo);
-      });
-  },
-  watch: {
-    "$store.state.userInfo"() {
-      this.userInfo = this.$store.state.userInfo;
-      console.log(this.userInfo);
-    }
-  },
   mounted() {
     // console.log("main-create");
   },
@@ -58,7 +40,8 @@ export default {
       if (show) {
         this.$refs.news.searAllDynamic();
       }
-    }
+    },
+    verify
   }
 };
 </script>

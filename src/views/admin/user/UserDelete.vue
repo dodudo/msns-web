@@ -124,7 +124,8 @@ export default {
             rows: this.pagination.itemsPerPage, //每页大小
             sortBy: this.pagination.sortBy, //排序字段
             desc: this.pagination.sortDesc, //是否降序
-            isAll: false //是否查询所有未删除的
+            isAll: false, //是否查询所有未删除的
+            uids: []
           },
           paramsSerializer: params => {
             return this.$qs.stringify(params, { indices: false });

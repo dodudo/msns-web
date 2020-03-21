@@ -8,10 +8,10 @@ import qs from "qs";
 import fs from "fs";
 import vuetify from "./plugins/vuetify";
 import "vuetify/dist/vuetify.min.css"; // Ensure you are using css-loader
-
-
+import VueCookies from "vue-cookies";
 
 Vue.use(vuetify);
+Vue.use(VueCookies);
 Vue.prototype.$qs = qs; //全局引用qs
 Vue.prototype.$fs = fs;
 new Vue({
