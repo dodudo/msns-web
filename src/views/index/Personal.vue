@@ -10,10 +10,7 @@
           <v-row align="center" class="px-4">
             <v-col cols="1">
               <v-avatar size="80">
-                <img
-                  src="https://cdn.vuetifyjs.com/images/john.jpg"
-                  alt="John"
-                />
+                <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
               </v-avatar>
             </v-col>
             <v-col cols="9" class="ml-4">
@@ -83,7 +80,7 @@
       </v-tabs>
     </v-row>
     <v-row>
-      <router-view />
+      <router-view ref="child" />
     </v-row>
   </v-container>
 </template>
@@ -91,9 +88,18 @@
 export default {
   data() {
     return {
-      outlined: false
+      outlined: false,
+      dynamicSearch: {
+        key: "",
+        page: 1,
+        sortBy: "publishDate",
+        desc: true,
+        uids: [],
+        ids: []
+      }
     };
   },
+  created() {},
   methods: {}
 };
 </script>

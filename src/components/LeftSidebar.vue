@@ -10,9 +10,12 @@
       floating
     >
       <v-avatar size="80">
-        <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+        <img
+          :src="userInfo.avatarUrl == null ? require('../assets/default_avatar.jpg') : userInfo.avatarUrl"
+          alt="John"
+        />
       </v-avatar>
-      <v-card class="title" flat>哈哈哈</v-card>
+      <v-card class="title" flat>{{userInfo.uname}}</v-card>
       <v-row justify="center">
         <v-col
           :style="{ color: color1, cursor: pointer1 }"
@@ -24,7 +27,7 @@
           @click="toAttention()"
         >
           <div>关注</div>
-          <div>15</div>
+          <div>{{userCountInfo.favorCount}}</div>
         </v-col>
         <v-col
           :style="{ color: color2, cursor: pointer2 }"
@@ -35,7 +38,7 @@
           @click="toFan()"
         >
           <div>粉丝</div>
-          <div>25</div>
+          <div>{{userCountInfo.fanCount}}</div>
         </v-col>
         <v-col
           :style="{ color: color3, cursor: pointer3 }"
@@ -46,7 +49,7 @@
           @click="toDynamic()"
         >
           <div>动态</div>
-          <div>1</div>
+          <div>{{userCountInfo.dynamicCount}}</div>
         </v-col>
       </v-row>
       <v-list class="pa-0">
@@ -87,8 +90,22 @@ export default {
     color3: "",
     pointer1: "",
     pointer2: "",
-    pointer3: ""
+    pointer3: "",
+    userInfo: {},
+    userCountInfo: {}
   }),
+  created() {
+    this.userInfo = this.$store.state.userInfo;
+    this.userCountInfo = this.$store.state.userCountInfo;
+  },
+  watch: {
+    "$store.state.userInfo"() {
+      this.userInfo = this.$store.state.userInfo;
+    },
+    "$store.state.userCountInfo"() {
+      this.userCountInfo = this.$store.state.userCountInfo;
+    }
+  },
   methods: {
     toPersonal() {
       this.$router.push({ path: "/index/personal/info" });

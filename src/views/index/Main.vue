@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <LeftSidebar></LeftSidebar>
+    <LeftSidebar v-if="userInfo.id != null"></LeftSidebar>
     <Edit></Edit>
-    <News v-bind:dynamicSearch="dynamicSearch" class="news"></News>
+    <News ref="news" v-on:newsIsShow="newsIsShow" v-bind:dynamicSearch="dynamicSearch" class="news"></News>
   </v-app>
 </template>
 <script>
@@ -16,7 +16,8 @@ export default {
       key: "",
       page: 1,
       sortBy: "publishDate",
-      desc: true
+      desc: true,
+      uids: []
     },
     dynamics: [],
     userInfo: {}
@@ -26,18 +27,39 @@ export default {
     LeftSidebar,
     Edit
   },
-  created() {},
+  created() {
+    this.$http({
+      method: "get",
+      url: "/auth/verify"
+    })
+      .then(resp => {
+        this.userInfo = resp.data;
+        this.$store.dispatch("changeUserInfo", resp.data);
+        // console.log(this.$store.state.userInfo);
+
+        // console.log(this.userInfo);
+      })
+      .catch(() => {
+        this.userInfo = {};
+        this.$store.dispatch("changeUserInfo", this.userInfo);
+      });
+  },
   watch: {
     "$store.state.userInfo"() {
       this.userInfo = this.$store.state.userInfo;
       console.log(this.userInfo);
-      this.$store.dispatch("changeUserInfo", this.userInfo);
     }
   },
   mounted() {
     // console.log("main-create");
   },
-  methods: {}
+  methods: {
+    newsIsShow(show) {
+      if (show) {
+        this.$refs.news.searAllDynamic();
+      }
+    }
+  }
 };
 </script>
 <style scoped></style>

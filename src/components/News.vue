@@ -156,12 +156,16 @@
 <script>
 import { formatDate } from "../assets/formatDate";
 import Stomp from "stompjs";
+import { verify } from "../verify";
 import { MQTT_SERVICE, MQTT_USERNAME, MQTT_PASSWORD } from "../mqtt";
 export default {
   props: {
     dynamicSearch: {
       type: Object,
       required: true
+    },
+    queryFavor: {
+      type: Boolean
     }
   },
   data: () => ({
@@ -186,7 +190,9 @@ export default {
     currentPage: 1,
     newsDynamicSearch: {},
     dynamicClient: Stomp.client(MQTT_SERVICE),
-    dynamicUpdate: true
+    dynamicUpdate: true,
+    userInfo: {},
+    show: false
   }),
   methods: {
     showComment(e) {
@@ -195,9 +201,11 @@ export default {
     },
     searAllDynamic() {
       this.dynamicSearch.page = this.currentPage;
+      // console.log(this.dynamicSearch);
+
       this.$http({
         method: "post",
-        url: "/search/dynamicPage",
+        url: "/search/dynamic/dynamicPage",
         data: this.dynamicSearch
       }).then(resp => {
         this.dynamics = resp.data.items;
@@ -265,14 +273,10 @@ export default {
         "heart-beat": "0,0"
       };
       this.dynamicClient.connect(headers, this.onConnected, this.onFailed);
-    }
+    },
+    verify
   },
   watch: {
-    "$store.state.userInfo"() {
-      this.userInfo = this.$store.state.userInfo;
-      console.log(this.userInfo);
-      this.$store.dispatch("changeUserInfo", this.userInfo);
-    },
     dynamicUpdate() {
       setTimeout(() => {
         this.searAllDynamic();
@@ -293,17 +297,29 @@ export default {
     },
     "dynamicSearch.desc"() {
       this.searAllDynamic();
-    }
+    },
+    "dynamicSearch.ids"() {
+      this.searAllDynamic();
+    },
+    "dynamicSearch.uids"() {
+      this.searAllDynamic();
+    },
+    verify
   },
 
   created() {
     this.$nextTick(() => {
-      this.searAllDynamic();
+      // this.searAllDynamic();
     });
     this.connect();
   },
   updated() {},
   mounted() {
+    this.show = true;
+    this.verify().then(() => {
+      this.$emit("newsIsShow", this.show);
+    });
+
     let that = this;
     setTimeout(() => {
       // console.log(that.$refs);

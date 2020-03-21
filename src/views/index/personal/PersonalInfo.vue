@@ -31,43 +31,19 @@
     <v-row align="center">
       <v-col class="ml-6" style="text-align:right" cols="1">昵称:</v-col>
       <v-col cols="4">
-        <v-text-field
-          solo
-          hide-details
-          flat
-          dense
-          color="#EF5350"
-          outlined
-          label="昵称"
-        ></v-text-field>
+        <v-text-field solo hide-details flat dense color="#EF5350" outlined label="昵称"></v-text-field>
       </v-col>
     </v-row>
     <v-row align="center">
       <v-col class="ml-6" style="text-align:right" cols="1">用户名:</v-col>
       <v-col cols="4">
-        <v-text-field
-          solo
-          disabled
-          hide-details
-          flat
-          dense
-          color="#EF5350"
-          label="用户名"
-        ></v-text-field>
+        <v-text-field solo disabled hide-details flat dense color="#EF5350" label="用户名"></v-text-field>
       </v-col>
     </v-row>
     <v-row align="center">
       <v-col class="ml-6" style="text-align:right" cols="1">我的签名:</v-col>
       <v-col cols="4">
-        <v-text-field
-          solo
-          hide-details
-          flat
-          dense
-          color="#EF5350"
-          outlined
-          label="签名"
-        ></v-text-field>
+        <v-text-field solo hide-details flat dense color="#EF5350" outlined label="签名"></v-text-field>
       </v-col>
     </v-row>
     <v-row align="center">
@@ -92,12 +68,7 @@
           min-width="290px"
         >
           <template v-slot:activator="{ on }">
-            <v-text-field
-              v-model="date"
-              label="Birthday date"
-              readonly
-              v-on="on"
-            ></v-text-field>
+            <v-text-field v-model="date" label="Birthday date" readonly v-on="on"></v-text-field>
           </template>
           <v-date-picker
             ref="picker"
@@ -119,9 +90,7 @@
     </v-row>
     <v-form ref="form" v-model="valid">
       <v-row align="center">
-        <v-col cols="1" class="ml-6 mb-6" style="text-align:right"
-          >旧密码:</v-col
-        >
+        <v-col cols="1" class="ml-6 mb-6" style="text-align:right">旧密码:</v-col>
         <v-col class="py-0" cols="4">
           <v-text-field
             solo
@@ -140,9 +109,7 @@
         </v-col>
       </v-row>
       <v-row align="center">
-        <v-col cols="1" class="ml-6 mb-6" style="text-align:right"
-          >新密码:</v-col
-        >
+        <v-col cols="1" class="ml-6 mb-6" style="text-align:right">新密码:</v-col>
         <v-col class="py-0" cols="4">
           <v-text-field
             solo
@@ -161,9 +128,7 @@
         </v-col>
       </v-row>
       <v-row align="center">
-        <v-col cols="1" class="ml-6 mb-6 caption" style="text-align:right"
-          >确认新密码:</v-col
-        >
+        <v-col cols="1" class="ml-6 mb-6 caption" style="text-align:right">确认新密码:</v-col>
         <v-col class="py-0" cols="4">
           <v-text-field
             solo
@@ -186,9 +151,7 @@
       </v-row>
       <v-row justify="center" align="center">
         <v-col cols="7">
-          <v-btn color="red" :disabled="!valid" width="80" @click="submit()"
-            >保存</v-btn
-          >
+          <v-btn color="red" :disabled="!valid" width="80" @click="submit()">保存</v-btn>
         </v-col>
       </v-row>
     </v-form>
@@ -213,14 +176,33 @@ export default {
     },
     newPasswordRules: { min: v => v.length >= 6 || "密码最少6位" },
     reNewPasswordRules: [],
-    valid: true
+    valid: true,
+    user: {}
   }),
   watch: {
     menu(val) {
       val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"));
     }
   },
+  created() {
+    this.getUser();
+  },
   methods: {
+    getUser() {
+      this.$http({
+        method: "get",
+        url: "/auth/getUser"
+      })
+        .then(resp => {
+          this.user = resp.data;
+          this.$store.dispatch("changeUser", this.user);
+          console.log(this.user);
+        })
+        .catch(() => {
+          this.user = {};
+          this.$store.dispatch("changeUser", this.user);
+        });
+    },
     save(date) {
       this.$refs.menu.save(date);
     },

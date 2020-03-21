@@ -7,7 +7,9 @@ export default new Vuex.Store({
   state: {
     drawer: true,
     playStatus: "mdi-play",
-    userInfo: {}
+    userInfo: {},
+    userCountInfo: {},
+    user: {}
   },
   mutations: {
     changeDrawer(state, drawer) {
@@ -18,6 +20,12 @@ export default new Vuex.Store({
     },
     changeUserInfo(state, userInfo) {
       state.userInfo = userInfo;
+    },
+    changeUserCountInfo(state, userCountInfo) {
+      state.userCountInfo = userCountInfo;
+    },
+    changeUser(state, user) {
+      state.user = user;
     }
   },
   actions: {
@@ -29,6 +37,12 @@ export default new Vuex.Store({
     },
     changeUserInfo(context, userInfo) {
       context.commit("changeUserInfo", userInfo);
+    },
+    changeUserCountInfo(context, userCountInfo) {
+      context.commit("changeUserCountInfo", userCountInfo);
+    },
+    changeUser(context, user) {
+      context.commit("changeUser", user);
     }
   },
   modules: {}

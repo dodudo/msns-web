@@ -1,7 +1,14 @@
 <template>
   <div>
     <!-- 小号左侧边栏，当页面缩小时可展开 -->
-    <v-navigation-drawer v-model="min_leftbar" height="630px" style="top:60px" fixed temporary>
+    <v-navigation-drawer
+      v-if="userInfo.id!=null"
+      v-model="min_leftbar"
+      height="630px"
+      style="top:60px"
+      fixed
+      temporary
+    >
       <v-list-item>
         <v-list-item-avatar>
           <v-img src="https://randomuser.me/api/portraits/men/78.jpg"></v-img>
@@ -86,18 +93,22 @@
       </v-btn>
       <v-btn v-show="drawer" @click="toIndex()" text large>首页</v-btn>
       <v-btn v-show="drawer" @click="toMusic()" text large>音乐</v-btn>
-      <v-btn v-show="drawer" @click="toDynamic()" text large>动态</v-btn>
-      <v-btn v-show="drawer" @click="toFavor()" text large>收藏</v-btn>
-      <v-btn v-show="drawer" @click="toMessage()" text large>
+      <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toDynamic()" text large>动态</v-btn>
+      <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toFavor()" text large>收藏</v-btn>
+      <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toMessage()" text large>
         <v-badge color="pink" content="6">消息</v-badge>
       </v-btn>
       <span>
-        <v-btn @click="toPersonal()" class="mx-3" text icon>
+        <v-btn @click="userInfo.id == null ? alertToLogin() : toPersonal()" class="mx-3" text icon>
           <v-avatar style="position:relative" @mouseover="showCard()" @mouseleave="hideCard()">
-            <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+            <img
+              :src="userInfo.avatarUrl == null ? require('../assets/default_avatar.jpg') : userInfo.avatarUrl"
+              alt="John"
+            />
           </v-avatar>
         </v-btn>
         <v-card
+          v-if="userInfo.id == null"
           light
           @mouseover="showCard"
           @mouseleave="hover = false"
@@ -128,7 +139,7 @@
         </v-card>
         <v-card
           light
-          v-if="false"
+          v-if="userInfo.id != null"
           @mouseover="showCard"
           @mouseleave="hover = false"
           v-show="hover"
@@ -136,9 +147,9 @@
           style="text-align:center; position:absolute;top:70px;right:32px"
         >
           <v-avatar class="mt-6">
-            <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+            <img :src="userInfo.avatarUrl" :alt="userInfo.uname" />
           </v-avatar>
-          <div>哈哈哈</div>
+          <div>{{userInfo.uname}}</div>
           <v-row justify="center">
             <v-col
               :style="{ color: color1, cursor: pointer1 }"
@@ -149,7 +160,7 @@
               @click="toAttention()"
             >
               <div>关注</div>
-              <div>15</div>
+              <div>{{userCountInfo.favorCount}}</div>
             </v-col>
             <v-col
               :style="{ color: color2, cursor: pointer2 }"
@@ -169,7 +180,7 @@
               @click="toPersonalDynamic()"
             >
               <div>动态</div>
-              <div>1</div>
+              <div>{{userCountInfo.dynamicCount}}</div>
             </v-col>
           </v-row>
           <v-list>
@@ -210,7 +221,12 @@
         </v-card>
       </span>
 
-      <v-btn class="ma-2" @click="focusInput()" depressed color="#D50000">
+      <v-btn
+        class="ma-2"
+        @click="userInfo.id == null ? alertToLogin() : focusInput() "
+        depressed
+        color="#D50000"
+      >
         <v-icon left>mdi-pencil</v-icon>发表动态
       </v-btn>
     </v-app-bar>
@@ -243,28 +259,53 @@ export default {
       pointer1: "",
       pointer2: "",
       pointer3: "",
-      min_leftbar: false
+      min_leftbar: false,
+      userInfo: {},
+      userCountInfo: {}
     };
   },
   created() {
-    this.$http({
-      method: "get",
-      url: "/auth/verify"
-    })
-      .then(resp => {
-        this.userInfo = resp.data;
-        this.$store.dispatch("changeUserInfo", resp.data);
-        console.log(this.$store.state.userInfo);
-
-        // console.log(this.userInfo);
-      })
-      .catch(() => {
-        this.userInfo = {};
-        this.$store.dispatch("changeUserInfo", this.userInfo);
-      });
+    this.verify();
   },
-  watch: {},
+  watch: {
+    userInfo() {
+      this.getUserCountInfo();
+    }
+  },
   methods: {
+    getUserCountInfo() {
+      this.$http({
+        method: "get",
+        url: `/search/user/userCountInfo/${this.userInfo.uid}`
+      })
+        .then(resp => {
+          this.userCountInfo = resp.data;
+          this.$store.dispatch("changeUserCountInfo", resp.data);
+          console.log(this.$store.state.userCountInfo);
+          // console.log(this.userInfo);
+        })
+        .catch(() => {
+          this.userCountInfo = {};
+          this.$store.dispatch("changeUserCountInfo", this.userCountInfo);
+        });
+    },
+    verify() {
+      this.$http({
+        method: "get",
+        url: "/auth/verify"
+      })
+        .then(resp => {
+          this.userInfo = resp.data;
+          this.$store.dispatch("changeUserInfo", resp.data);
+          console.log(this.$store.state.userInfo);
+
+          // console.log(this.userInfo);
+        })
+        .catch(() => {
+          this.userInfo = {};
+          this.$store.dispatch("changeUserInfo", this.userInfo);
+        });
+    },
     querySelections(v) {
       this.loading = true;
       // Simulated ajax query
@@ -338,6 +379,11 @@ export default {
     },
     toRegister() {
       this.$router.push({ path: "/register" });
+    },
+    alertToLogin() {
+      if (confirm("您还没有登录哦，现在要登陆吗？")) {
+        this.$router.push({ path: "/login" });
+      }
     }
   },
   computed: {
