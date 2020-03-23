@@ -10,12 +10,12 @@
           <v-row align="center" class="px-4">
             <v-col cols="1">
               <v-avatar size="80">
-                <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+                <img :src="$store.state.user.avatarUrl" :alt="$store.state.user.uname" />
               </v-avatar>
             </v-col>
             <v-col cols="9" class="ml-4">
               <v-row align="center">
-                <h3 class="ml-3">哈哈哈</h3>
+                <h3 class="ml-3">{{$store.state.user.uname}}</h3>
               </v-row>
               <v-row justify="center">
                 <v-text-field
@@ -25,7 +25,9 @@
                   @mouseenter="outlined = true"
                   @mouseleave="outlined = false"
                   dark
+                  v-model="$store.state.user.description"
                   hide-details
+                  maxlength="50"
                   background-color="rgba(255,255,255,0)"
                   color="#fff"
                   solo
@@ -95,11 +97,29 @@ export default {
         sortBy: "publishDate",
         desc: true,
         uids: [],
-        ids: []
+        ids: [],
+        user: {}
       }
     };
   },
-  created() {},
-  methods: {}
+  created() {
+    this.getUser();
+  },
+  methods: {
+    getUser() {
+      this.$http({
+        method: "get",
+        url: "/auth/getUser"
+      })
+        .then(resp => {
+          this.user = resp.data;
+          this.$store.dispatch("changeUser", this.user);
+        })
+        .catch(() => {
+          this.user = {};
+          this.$store.dispatch("changeUser", this.user);
+        });
+    }
+  }
 };
 </script>

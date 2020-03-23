@@ -296,8 +296,7 @@ export default {
       })
         .then(() => {
           this.dialog = false;
-          document.reload();
-          // console.log(this.userInfo);
+          location.reload();
         })
         .catch(() => {
           alert("退出失败！");

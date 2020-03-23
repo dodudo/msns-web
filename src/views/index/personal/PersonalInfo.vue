@@ -11,7 +11,7 @@
     <v-row align="center" justify="center">
       <v-col cols="1">
         <v-avatar size="120">
-          <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+          <img :src="user.avatarUrl" :alt="user.uname" />
         </v-avatar>
       </v-col>
       <v-col cols="1">
@@ -20,66 +20,103 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row align="center">
-      <v-col align-self="center">
-        <v-card flat height="40">
-          <h4 class="ml-2" style="line-height:40px">我的信息</h4>
+    <v-form ref="info_form" v-model="validate1">
+      <v-row align="center">
+        <v-card class="ml-4 mr-2" flat height="40">
+          <h4 style="line-height:40px">我的信息</h4>
         </v-card>
-        <v-divider></v-divider>
-      </v-col>
-    </v-row>
-    <v-row align="center">
-      <v-col class="ml-6" style="text-align:right" cols="1">昵称:</v-col>
-      <v-col cols="4">
-        <v-text-field solo hide-details flat dense color="#EF5350" outlined label="昵称"></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row align="center">
-      <v-col class="ml-6" style="text-align:right" cols="1">用户名:</v-col>
-      <v-col cols="4">
-        <v-text-field solo disabled hide-details flat dense color="#EF5350" label="用户名"></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row align="center">
-      <v-col class="ml-6" style="text-align:right" cols="1">我的签名:</v-col>
-      <v-col cols="4">
-        <v-text-field solo hide-details flat dense color="#EF5350" outlined label="签名"></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row align="center">
-      <v-col class="ml-6" style="text-align:right" cols="1">性别:</v-col>
-      <v-col cols="4">
-        <v-radio-group v-model="row" row>
-          <v-radio label="男" value="boy"></v-radio>
-          <v-radio label="女" value="girl"></v-radio>
-          <v-radio label="保密" value="security"></v-radio>
-        </v-radio-group>
-      </v-col>
-    </v-row>
-    <v-row align="center">
-      <v-col class="ml-6" style="text-align:right" cols="1">生日:</v-col>
-      <v-col cols="4">
-        <v-menu
-          ref="menu"
-          v-model="menu"
-          :close-on-content-click="false"
-          transition="scale-transition"
-          offset-y
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on }">
-            <v-text-field v-model="date" label="Birthday date" readonly v-on="on"></v-text-field>
-          </template>
-          <v-date-picker
-            ref="picker"
-            v-model="date"
-            :max="new Date().toISOString().substr(0, 10)"
-            min="1950-01-01"
-            @change="save"
-          ></v-date-picker>
-        </v-menu>
-      </v-col>
-    </v-row>
+
+        <v-btn :color="edit ? 'error':'info'" @click="edit=!edit" small>{{edit? '编辑' : '退出编辑'}}</v-btn>
+      </v-row>
+      <v-divider></v-divider>
+
+      <v-row align="center">
+        <v-col class="ml-6" style="text-align:right" cols="1">昵称:</v-col>
+        <v-col cols="4">
+          <v-text-field
+            :disabled="edit"
+            solo
+            v-model="user.uname"
+            flat
+            :rules="nameRules"
+            dense
+            color="#EF5350"
+            outlined
+            label="昵称"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row align="center">
+        <v-col class="ml-6" style="text-align:right" cols="1">UID:</v-col>
+        <v-col cols="4">
+          <v-text-field
+            solo
+            disabled
+            hide-details
+            flat
+            dense
+            color="#EF5350"
+            v-model="user.uid"
+            label="UID"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row align="center">
+        <v-col class="ml-6" style="text-align:right" cols="1">我的签名:</v-col>
+        <v-col cols="4">
+          <v-text-field
+            :disabled="edit"
+            solo
+            counter="50"
+            flat
+            v-model="user.description"
+            dense
+            maxlength="50"
+            color="#EF5350"
+            outlined
+            label="签名"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row align="center">
+        <v-col class="ml-6" style="text-align:right" cols="1">性别:</v-col>
+        <v-col cols="4">
+          <v-radio-group :disabled="edit" v-model="user.sex" row>
+            <v-radio label="男" value="男"></v-radio>
+            <v-radio label="女" value="女"></v-radio>
+            <v-radio label="保密" value="保密"></v-radio>
+          </v-radio-group>
+        </v-col>
+      </v-row>
+      <v-row align="center">
+        <v-col class="ml-6" style="text-align:right" cols="1">生日:</v-col>
+        <v-col cols="4">
+          <v-menu
+            ref="menu"
+            v-model="menu"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            min-width="290px"
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field :disabled="edit" v-model="date" label="生日" readonly v-on="on"></v-text-field>
+            </template>
+            <v-date-picker
+              ref="picker"
+              v-model="date"
+              :max="new Date().toISOString().substr(0, 10)"
+              min="1950-01-01"
+              @change="save"
+            ></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col class="text-center">
+          <v-btn v-if="!edit" @click="changeUserInfo()">保存</v-btn>
+        </v-col>
+        <v-col></v-col>
+      </v-row>
+    </v-form>
     <v-row align="center">
       <v-col align-self="center">
         <v-card flat height="40">
@@ -88,7 +125,7 @@
         <v-divider></v-divider>
       </v-col>
     </v-row>
-    <v-form ref="form" v-model="valid">
+    <v-form ref="form" v-model="validate2">
       <v-row align="center">
         <v-col cols="1" class="ml-6 mb-6" style="text-align:right">旧密码:</v-col>
         <v-col class="py-0" cols="4">
@@ -158,19 +195,27 @@
   </v-card>
 </template>
 <script>
+import { formatDate } from "../../../assets/formatDate";
 export default {
   data: () => ({
+    validate1: true,
+    validate2: true,
     date: null,
     menu: false,
     show1: false,
     show2: false,
     show3: false,
+    edit: true,
     oldPassword: "",
     newPassword: "",
     reNewPassword: "",
-    row: "",
     btnStatus: false,
     reNewpasswordErr: [],
+    nameRules: [
+      v => !!v || "Name is required",
+      v => /^[a-zA-Z]{4,10}$/.test(v) || "只能输入4-10个以字母开头的字串"
+    ],
+    descRules: { min: v => v.length <= 50 || "输入长度不能超过50" },
     oldPasswordRules: {
       min: v => v.length >= 6 || "密码最少6位"
     },
@@ -195,8 +240,12 @@ export default {
       })
         .then(resp => {
           this.user = resp.data;
+          console.log(this.user.birthday);
+
+          this.date = this.formatDate(this.user.birthday);
+          // console.log(birth);
           this.$store.dispatch("changeUser", this.user);
-          console.log(this.user);
+          // console.log(this.user);
         })
         .catch(() => {
           this.user = {};
@@ -222,6 +271,46 @@ export default {
     submit() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
+        if (this.$refs.info_form.validate()) {
+          this.snackbar = true;
+          this.$http({
+            method: "get",
+            url: `/auth/changePwd`,
+            params: {
+              upassword: this.oldPassword,
+              newPassword: this.newPassword
+            },
+            paramsSerializer: params => {
+              return this.$qs.stringify(params, { indices: false });
+            }
+          })
+            .then(() => {
+              alert("保存成功!");
+            })
+            .catch(() => {
+              alert("保存失败");
+            });
+        }
+      }
+    },
+    formatDate(time) {
+      var date = new Date(time);
+      return formatDate(date, "yyyy-MM-dd");
+    },
+    changeUserInfo() {
+      if (this.$refs.info_form.validate()) {
+        this.snackbar = true;
+        this.$http({
+          method: "put",
+          url: `/user`,
+          data: this.user
+        })
+          .then(() => {
+            alert("保存成功!");
+          })
+          .catch(() => {
+            alert("保存失败");
+          });
       }
     }
   }
