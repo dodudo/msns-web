@@ -3,7 +3,12 @@
     <v-card class="mx-2" flat height="54">
       <v-card-title>全部关注</v-card-title>
     </v-card>
-    <PeopleList ref="peopleList" v-on:peopleListIsShow="peopleListIsShow" v-bind:uids="uids"></PeopleList>
+    <PeopleList
+      ref="peopleList"
+      v-on:peopleListIsShow="peopleListIsShow"
+      v-bind:isFan="false"
+      v-bind:uids="uids"
+    ></PeopleList>
   </v-card>
 </template>
 <script>
