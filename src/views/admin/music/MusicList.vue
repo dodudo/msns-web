@@ -315,10 +315,12 @@ export default {
         that.coverUrl = e.target.result;
       };
       let formData = new FormData();
+      // console.log(e);
+
       formData.append("file", e);
       this.$http({
         method: "post",
-        url: "http://localhost:10000/upload/image",
+        url: "http://127.0.0.1:10000/upload/image",
         data: formData,
         headers: {
           "Content-Type": "multipart/form-data"

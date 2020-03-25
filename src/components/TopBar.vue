@@ -64,7 +64,7 @@
       </template>
 
       <a class="title" style="text-decoration: none;color:#fff" href="/index/main">
-        <v-toolbar-title>Music Social Sites</v-toolbar-title>
+        <v-toolbar-title>Music Social Site</v-toolbar-title>
       </a>
 
       <v-app-bar-nav-icon v-show="!drawer" @click="min_leftbar = !min_leftbar" icon></v-app-bar-nav-icon>
@@ -79,18 +79,7 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-avatar>
-        <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
-      </v-avatar>
-      <v-btn icon>
-        <v-icon>mdi-skip-previous</v-icon>
-      </v-btn>
-      <v-btn icon @click="play()">
-        <v-icon>{{ this.$store.state.playStatus }}</v-icon>
-      </v-btn>
-      <v-btn icon class="mr-2">
-        <v-icon>mdi-skip-next</v-icon>
-      </v-btn>
+
       <v-btn v-show="drawer" @click="toIndex()" text large>首页</v-btn>
       <v-btn v-show="drawer" @click="toMusic()" text large>音乐</v-btn>
       <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toDynamic()" text large>动态</v-btn>
@@ -281,7 +270,7 @@ export default {
         .then(resp => {
           this.userCountInfo = resp.data;
           this.$store.dispatch("changeUserCountInfo", resp.data);
-          console.log(this.$store.state.userCountInfo);
+          // console.log(this.$store.state.userCountInfo);
           // console.log(this.userInfo);
         })
         .catch(() => {
@@ -310,7 +299,7 @@ export default {
         .then(resp => {
           this.userInfo = resp.data;
           this.$store.dispatch("changeUserInfo", resp.data);
-          console.log(this.$store.state.userInfo);
+          // console.log(this.$store.state.userInfo);
 
           // console.log(this.userInfo);
         })

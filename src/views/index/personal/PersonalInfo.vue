@@ -1,25 +1,46 @@
 <template>
   <v-card class="mt-3 pa-2" width="1114">
-    <v-row align="center">
-      <v-col align-self="center">
-        <v-card flat height="40">
-          <h4 class="ml-2" style="line-height:40px">我的头像</h4>
-        </v-card>
-        <v-divider></v-divider>
-      </v-col>
-    </v-row>
-    <v-row align="center" justify="center">
-      <v-col cols="1">
-        <v-avatar size="120">
-          <img :src="user.avatarUrl" :alt="user.uname" />
-        </v-avatar>
-      </v-col>
-      <v-col cols="1">
-        <v-btn style="text-align:center;" dark fab class="ml-10" color="red">
-          <span style="white-space:normal;width:45px">更换头像</span>
-        </v-btn>
-      </v-col>
-    </v-row>
+    <v-form ref="avatar_form" v-model="avatarForm">
+      <v-row align="center">
+        <v-col align-self="center">
+          <v-card flat height="40">
+            <h4 class="ml-2" style="line-height:40px">我的头像</h4>
+          </v-card>
+          <v-divider></v-divider>
+        </v-col>
+      </v-row>
+      <v-row align="center" justify="center">
+        <v-col cols="1">
+          <v-avatar size="120">
+            <img :src="user.avatarUrl" :alt="user.uname" />
+          </v-avatar>
+        </v-col>
+
+        <v-col cols="1">
+          <v-btn style="text-align:center;" dark fab class="ml-10" color="red">
+            <span style="white-space:normal;width:45px">更换头像</span>
+            <v-overlay z-index="1" opacity="0" absolute value="true">
+              <input
+                type="file"
+                @change="fileChange"
+                id="img_input"
+                accept="image/png, image/jpeg, image/gif, image/jpg"
+                style="opacity: 0;height:45px;width:45px"
+              />
+            </v-overlay>
+          </v-btn>
+        </v-col>
+
+        <v-col cols="1" class="ml-4" v-if="showChangeAvatar">
+          <v-avatar size="80">
+            <img :src="avatarUrl" :alt="user.uname" />
+          </v-avatar>
+        </v-col>
+        <v-col v-if="showChangeAvatar" cols="1" class="ml-2">
+          <v-btn fab small color="error" @click="uploadAvatar()">更换</v-btn>
+        </v-col>
+      </v-row>
+    </v-form>
     <v-form ref="info_form" v-model="validate1">
       <v-row align="center">
         <v-card class="ml-4 mr-2" flat height="40">
@@ -112,7 +133,7 @@
           </v-menu>
         </v-col>
         <v-col class="text-center">
-          <v-btn v-if="!edit" @click="changeUserInfo()">保存</v-btn>
+          <v-btn v-if="!edit" @click="uploadAvatar()">保存</v-btn>
         </v-col>
         <v-col></v-col>
       </v-row>
@@ -205,11 +226,15 @@ export default {
     show1: false,
     show2: false,
     show3: false,
+    avatarForm: null,
+    showChangeAvatar: false,
     edit: true,
     oldPassword: "",
     newPassword: "",
+    avatarFile: null,
     reNewPassword: "",
     btnStatus: false,
+    avatarUrl: "",
     reNewpasswordErr: [],
     nameRules: [
       v => !!v || "Name is required",
@@ -297,6 +322,27 @@ export default {
       var date = new Date(time);
       return formatDate(date, "yyyy-MM-dd");
     },
+    fileChange(e) {
+      var img_input = document.querySelector("#img_input");
+
+      var files = e.target.files || e.dataTransfer.files;
+
+      if (!files.length) return;
+      this.avatarFile = files[0];
+      // var iamge = new Image();
+      var that = this;
+      for (var i = 0; i < files.length; i++) {
+        var reader = new FileReader();
+        reader.readAsDataURL(files[i]);
+        reader.onload = function(e) {
+          that.avatarUrl = e.target.result;
+          that.showChangeAvatar = true;
+          console.log(that.avatarUrl);
+          
+        };
+      }
+      img_input.value = null;
+    },
     changeUserInfo() {
       if (this.$refs.info_form.validate()) {
         this.snackbar = true;
@@ -312,6 +358,41 @@ export default {
             alert("保存失败");
           });
       }
+    },
+    async uploadAvatar() {
+      var formData = new FormData();
+      // console.log(this.avatarFile);
+
+      formData.append("file", this.avatarFile);
+
+      await this.$http({
+        method: "post",
+        url: "http://localhost:10000/upload/image",
+        data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }).then(resp => {
+        this.avatarUrl = resp.data;
+        this.changeAvatar();
+      });
+    },
+    async changeAvatar() {
+      await this.$http({
+        method: "get",
+        url: "/user/changeAvatar",
+        params: { avatarUrl: this.avatarUrl, id: this.user.id }
+      })
+        .then(() => {
+          // console.log("change");
+          this.$store.state.user.avatarUrl = this.avatarUrl;
+          this.$store.state.userInfo.avatarUrl = this.avatarUrl;
+          alert("修改成功！");
+          this.showChangeAvatar = false;
+        })
+        .catch(() => {
+          alert("修改失败！");
+        });
     }
   }
 };

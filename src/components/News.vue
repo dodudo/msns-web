@@ -13,7 +13,11 @@
         class="mx-auto mb-4 pb-2"
       >
         <v-list-item>
-          <v-list-item-avatar color="grey"></v-list-item-avatar>
+          <v-list-item-avatar size="50" color="grey">
+            <v-img
+              :src="dynamic.authorAvatar == null ? require('../assets/default_avatar.jpg') : dynamic.authorAvatar"
+            ></v-img>
+          </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title class="body-1">{{dynamic.author}}</v-list-item-title>
             <v-list-item-subtitle class="body-2">{{formatDate(dynamic.publishDate)}}</v-list-item-subtitle>
@@ -216,6 +220,16 @@ export default {
           this.dynamics[i].btnShow = false;
           this.dynamics[i].fold = false;
           this.dynamics[i].show_input = false;
+          let user = {};
+          // 根据用户id查询头像和用户名
+          this.getUserNameAndAvatar(this.dynamics[i].uid).then(res => {
+            user = res;
+            console.log(user);
+
+            this.dynamics[i].author = user.uname;
+            this.dynamics[i].authorAvatar = user.avatarUrl;
+          });
+
           if (this.dynamics[i].imgUrls != null) {
             this.dynamics[i].imgUrls = this.dynamics[i].imgUrls.split(",");
           }
@@ -249,6 +263,20 @@ export default {
           }
         }
       });
+    },
+    async getUserNameAndAvatar(uid) {
+      var user = {};
+      await this.$http
+        .get(`/user/queryNameAvatarById/${uid}`)
+        .then(resp => {
+          // console.log(resp);
+
+          user = resp.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      return user;
     },
 
     onConnected: function() {

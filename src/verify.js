@@ -11,8 +11,10 @@ export async function verify() {
 
         })
         .catch(() => {
+
             this.userInfo = {};
-            this.$store.dispatch("changeUserInfo", this.userInfo);
+            this.$store.dispatch("changeUserInfo", {});
+
         });
     return Promise.resolve()
 }

@@ -6,17 +6,20 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     drawer: true,
-    playStatus: "mdi-play",
+    playing: false,
     userInfo: {},
     userCountInfo: {},
-    user: {}
+    user: {},
+    favorState: 0,
+    music: {},
+    musicIndex: null
   },
   mutations: {
     changeDrawer(state, drawer) {
       state.drawer = drawer;
     },
-    changePalyBtnStatus(state, playStatus) {
-      state.playStatus = playStatus;
+    changePlaying(state, playing) {
+      state.playing = playing;
     },
     changeUserInfo(state, userInfo) {
       state.userInfo = userInfo;
@@ -26,14 +29,23 @@ export default new Vuex.Store({
     },
     changeUser(state, user) {
       state.user = user;
+    },
+    changeFavorState(state, favorState) {
+      state.favorState = favorState;
+    },
+    changeMusic(state, music) {
+      state.music = music;
+    },
+    changeMusicIndex(state, musicIndex) {
+      state.musicIndex = musicIndex
     }
   },
   actions: {
     changeDrawer(context, drawer) {
       context.commit("changeDrawer", drawer);
     },
-    changePalyBtnStatus(context, playStatus) {
-      context.commit("changePalyBtnStatus", playStatus);
+    changePlaying(context, playing) {
+      context.commit("changePlaying", playing);
     },
     changeUserInfo(context, userInfo) {
       context.commit("changeUserInfo", userInfo);
@@ -43,6 +55,15 @@ export default new Vuex.Store({
     },
     changeUser(context, user) {
       context.commit("changeUser", user);
+    },
+    changeFavorState(context, favorState) {
+      context.commit("changeFavorState", favorState)
+    },
+    changeMusic(context, music) {
+      context.commit("changeMusic", music)
+    },
+    changeMusicIndex(context, musicIndex) {
+      context.commit("changeMusicIndex", musicIndex)
     }
   },
   modules: {}
