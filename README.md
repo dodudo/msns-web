@@ -28,7 +28,7 @@ npm run lint
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-## 音乐社交网站前台页面
+## 音乐社交网站前台页面(非最终效果)
 
 > 基于 vue，vuex，vue-router，vue-cli 搭建的前端项目，UI 框架采用 Vuetify 编写。
 
