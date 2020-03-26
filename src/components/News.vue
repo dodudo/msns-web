@@ -1,5 +1,5 @@
 <template>
-  <v-card flat style="position:relative;">
+  <v-card flat width="700" class="mx-auto">
     <v-card flat>
       <v-card flat class="mx-auto pa-0" width="700" v-show="dynamics[0]==undefined">
         <v-card-text style="text-align:center">没有动态呢</v-card-text>
@@ -224,7 +224,7 @@ export default {
           // 根据用户id查询头像和用户名
           this.getUserNameAndAvatar(this.dynamics[i].uid).then(res => {
             user = res;
-            console.log(user);
+            // console.log(user);
 
             this.dynamics[i].author = user.uname;
             this.dynamics[i].authorAvatar = user.avatarUrl;
@@ -330,6 +330,11 @@ export default {
       this.searAllDynamic();
     },
     "dynamicSearch.uids"() {
+      this.searAllDynamic();
+    },
+    "$store.state.dynamicPush"() {
+      // console.log("dynamicPush");
+
       this.searAllDynamic();
     },
     verify

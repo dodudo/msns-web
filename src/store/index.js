@@ -12,7 +12,8 @@ export default new Vuex.Store({
     user: {},
     favorState: 0,
     music: {},
-    musicIndex: null
+    musicIndex: null,
+    dynamicPush: false,
   },
   mutations: {
     changeDrawer(state, drawer) {
@@ -38,6 +39,9 @@ export default new Vuex.Store({
     },
     changeMusicIndex(state, musicIndex) {
       state.musicIndex = musicIndex
+    },
+    changeDynamicPush(state, dynamicPush) {
+      state.dynamicPush = dynamicPush;
     }
   },
   actions: {
@@ -64,6 +68,9 @@ export default new Vuex.Store({
     },
     changeMusicIndex(context, musicIndex) {
       context.commit("changeMusicIndex", musicIndex)
+    },
+    changeDynamicPush(context, dynamicPush) {
+      context.commit("changeDynamicPush", dynamicPush)
     }
   },
   modules: {}

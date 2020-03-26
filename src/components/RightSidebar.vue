@@ -1,16 +1,14 @@
 <template>
-  <v-card class="mb-0" flat>
-    <div style="width:380px"></div>
+  <v-card>
     <v-navigation-drawer
       v-model="rdrawer"
       height="630"
       width="380"
       right
-      fixed
       class="right-sidebar"
+      fixed
       light
       stateless
-      floating
     >
       <v-list-item>
         <v-list-item-content>
@@ -110,18 +108,18 @@
           </v-row>
         </v-container>
       </v-content>
+      <audio
+        ref="audio"
+        @pause="onPause()"
+        @play="onPlay()"
+        @ended="onEnded()"
+        @timeupdate="onTimeupdate"
+        @loadedmetadata="onLoadedmetadata"
+        :src="this.$store.state.music.musicUrl == null ? audioSrc : this.$store.state.music.musicUrl"
+        v-show="false"
+        controls="controls"
+      ></audio>
     </v-navigation-drawer>
-    <audio
-      ref="audio"
-      @pause="onPause()"
-      @play="onPlay()"
-      @ended="onEnded()"
-      @timeupdate="onTimeupdate"
-      @loadedmetadata="onLoadedmetadata"
-      :src="this.$store.state.music.musicUrl == null ? audioSrc : this.$store.state.music.musicUrl"
-      v-show="false"
-      controls="controls"
-    ></audio>
   </v-card>
 </template>
 <script>
@@ -306,7 +304,6 @@ export default {
     favor(music) {
       if (music.favor == true) {
         if (confirm(`您确定要取消收藏${music.musicName}吗？`)) {
-          music.favor = false;
           this.$http({
             method: "delete",
             url: `/favor/music/`,
@@ -319,6 +316,7 @@ export default {
             }
           })
             .then(() => {
+              music.favor = false;
               alert("取消收藏成功!");
             })
             .catch(() => {
@@ -326,7 +324,6 @@ export default {
             });
         }
       } else {
-        music.favor = true;
         this.$http({
           method: "post",
           url: `/favor/music`,
@@ -339,6 +336,7 @@ export default {
           }
         })
           .then(() => {
+            music.favor = true;
             alert("收藏成功!");
           })
           .catch(() => {
@@ -368,8 +366,10 @@ export default {
         this.screenWidth = document.body.clientWidth;
         if (this.screenWidth < 1500) {
           this.drawer = false;
+          this.$store.dispatch("changeDrawer", false);
         } else {
           this.drawer = true;
+          this.$store.dispatch("changeDrawer", true);
         }
       })();
     };

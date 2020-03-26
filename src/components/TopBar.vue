@@ -5,7 +5,7 @@
       v-if="userInfo.id!=null"
       v-model="min_leftbar"
       height="630px"
-      style="top:60px"
+      style="top:60px;z-index:999"
       fixed
       temporary
     >
@@ -53,8 +53,6 @@
       fixed
       dark
       prominenta
-      max-width="1520"
-      min-width="880"
       color="red"
       src="https://picsum.photos/1920/1080?random"
       scroll-target
@@ -258,6 +256,9 @@ export default {
   },
   watch: {
     userInfo() {
+      this.getUserCountInfo();
+    },
+    "$store.state.dynamicPush"() {
       this.getUserCountInfo();
     }
   },

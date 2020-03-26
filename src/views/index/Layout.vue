@@ -1,9 +1,14 @@
-<template>
-  <v-app>
-    <TopBar v-on:topBarSearchVal="topBarSearchVal"></TopBar>
-    <div id="content" style="max-width:1520px;min-width:880px" class="overflow-y-auto">
-      <router-view></router-view>
-      <RightSidebar class="right-sidebar my-0"></RightSidebar>
+<template >
+  <v-app style="width:1518px">
+    <div style="width:1518px;">
+      <TopBar v-on:topBarSearchVal="topBarSearchVal"></TopBar>
+      <div id="content">
+        <router-view></router-view>
+
+        <div style="z-index:0">
+          <RightSidebar class="right-sidebar my-0"></RightSidebar>
+        </div>
+      </div>
     </div>
   </v-app>
 </template>

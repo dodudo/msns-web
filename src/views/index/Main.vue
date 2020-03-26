@@ -1,8 +1,15 @@
 <template>
   <v-app>
-    <LeftSidebar v-if="userInfo.id != null"></LeftSidebar>
-    <Edit></Edit>
-    <News ref="news" v-on:newsIsShow="newsIsShow" v-bind:dynamicSearch="dynamicSearch" class="news"></News>
+    <LeftSidebar style="z-index:0" v-if="userInfo.id != null"></LeftSidebar>
+    <div>
+      <Edit></Edit>
+      <News
+        ref="news"
+        v-on:newsIsShow="newsIsShow"
+        v-bind:dynamicSearch="dynamicSearch"
+        class="news"
+      ></News>
+    </div>
   </v-app>
 </template>
 <script>
