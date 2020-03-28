@@ -101,7 +101,7 @@
                 </v-list-item-avatar>
 
                 <v-overlay z-index="1" opacity="0.3" absolute value="true">
-                  <v-btn icon>
+                  <v-btn @click="playMusic(dynamic.music)" icon>
                     <v-icon>mdi-play-circle-outline</v-icon>
                   </v-btn>
                 </v-overlay>
@@ -110,6 +110,13 @@
                 <v-list-item-title>{{dynamic.music.musicName}}</v-list-item-title>
                 <v-list-item-subtitle>{{dynamic.music.musicAuthor}}</v-list-item-subtitle>
               </v-list-item-content>
+              <v-card flat>
+                <v-btn @click.stop="favorMusic(dynamic.music)" icon>
+                  <v-icon
+                    :color="favorMusicIds.indexOf(dynamic.music.id) == -1 ? 'grey' : 'red'"
+                  >mdi-heart</v-icon>
+                </v-btn>
+              </v-card>
             </v-list-item>
           </v-list>
         </v-card>
@@ -117,8 +124,8 @@
           <span class="caption ml-2">浏览次数{{dynamic.viewCount}}</span>
           <v-spacer></v-spacer>
           <v-card flat>
-            <v-btn icon>
-              <v-icon>mdi-thumb-up</v-icon>
+            <v-btn @click="likeDynamic(dynamic,index)" icon>
+              <v-icon :color="likeDynamicIds.indexOf(dynamic.id)==-1 ? 'grey' : 'red'">mdi-thumb-up</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.likeCount}}</span>
           </v-card>
@@ -196,7 +203,9 @@ export default {
     dynamicClient: Stomp.client(MQTT_SERVICE),
     dynamicUpdate: true,
     userInfo: {},
-    show: false
+    show: false,
+    favorMusicIds: [],
+    likeDynamicIds: []
   }),
   methods: {
     showComment(e) {
@@ -205,7 +214,13 @@ export default {
     },
     searAllDynamic() {
       this.dynamicSearch.page = this.currentPage;
-      // console.log(this.dynamicSearch);
+      console.log(this.dynamicSearch);
+      // console.log(this.queryFavor);
+      if (this.queryFavor && this.dynamicSearch.ids.length == 0) {
+        console.log(this.dynamicSearch);
+        this.dynamics = [];
+        return;
+      }
 
       this.$http({
         method: "post",
@@ -236,8 +251,96 @@ export default {
           this.dynamics[i] = Object.assign({}, this.dynamics[i]);
         }
         this.dynamics = Object.assign({}, this.dynamics);
+        this.getLikeDynamic();
         // console.log(this.dynamics[0]);
       });
+    },
+    favorMusic(music) {
+      if (this.favorMusicIds.indexOf(music.id) != -1) {
+        if (confirm(`您确定要取消收藏${music.musicName}吗？`)) {
+          this.$http({
+            method: "delete",
+            url: `/favor/music/`,
+            params: {
+              collectorId: this.$store.state.userInfo.uid,
+              musicId: music.id
+            },
+            paramsSerializer: params => {
+              return this.$qs.stringify(params, { indices: false });
+            }
+          })
+            .then(() => {
+              this.getFavorMusicId();
+              this.$store.dispatch(
+                "changeFavorState",
+                !this.$store.state.favorState
+              );
+              alert("取消收藏成功!");
+            })
+            .catch(() => {
+              alert("取消收藏失败！");
+            });
+        }
+      } else {
+        this.$http({
+          method: "post",
+          url: `/favor/music`,
+          params: {
+            collectorId: this.$store.state.userInfo.uid,
+            musicId: music.id
+          },
+          paramsSerializer: params => {
+            return this.$qs.stringify(params, { indices: false });
+          }
+        })
+          .then(() => {
+            this.$store.dispatch(
+              "changeFavorState",
+              !this.$store.state.favorState
+            );
+            this.getFavorMusicId();
+            alert("收藏成功!");
+          })
+          .catch(() => {
+            alert("收藏失败！");
+          });
+      }
+    },
+    likeDynamic(dynamic, index) {
+      if (
+        this.$store.state.userInfo.uid == null ||
+        this.$store.state.userInfo.uid == undefined
+      )
+        return;
+      if (this.likeDynamicIds.indexOf(dynamic.id) != -1) {
+        this.$http({
+          method: "delete",
+          url: `/like`,
+          params: {
+            collectorId: this.$store.state.userInfo.uid,
+            dynamicId: dynamic.id
+          },
+          paramsSerializer: params => {
+            return this.$qs.stringify(params, { indices: false });
+          }
+        }).then(() => {
+          this.getLikeDynamic();
+          this.dynamics[index].likeCount -= 1;
+        });
+      } else {
+        this.$http({
+          method: "post",
+          url: `/like`,
+          data: {
+            likerId: this.$store.state.userInfo.uid,
+            dynamicId: dynamic.id,
+            dynamicAuthorid: dynamic.uid
+          }
+        }).then(() => {
+          this.getLikeDynamic();
+          this.dynamics[index].likeCount += 1;
+        });
+      }
     },
     formatDate(time) {
       var date = new Date(time);
@@ -264,6 +367,15 @@ export default {
         }
       });
     },
+    async getFavorMusicId() {
+      await this.$http({
+        method: "get",
+        url: `/favor/music/queryByUid/${this.$store.state.userInfo.uid}`
+      }).then(resp => {
+        // console.log("jhj");
+        this.favorMusicIds = resp.data;
+      });
+    },
     async getUserNameAndAvatar(uid) {
       var user = {};
       await this.$http
@@ -278,11 +390,13 @@ export default {
         });
       return user;
     },
-
+    playMusic(item) {
+      this.$store.dispatch("changeMusic", item);
+      this.$store.dispatch("changeMusicIndex", -1);
+    },
     onConnected: function() {
       //订阅频道
-      const topic = "/exchange/msns.dynamic.exchange/dynamic.update";
-
+      const topic = "/exchange/msns.dynamic.exchange/dynamic.#";
       this.dynamicClient.subscribe(topic, this.responseCallback, this.onFailed);
       // console.log(fram);
     },
@@ -302,16 +416,51 @@ export default {
       };
       this.dynamicClient.connect(headers, this.onConnected, this.onFailed);
     },
-    verify
+    verify,
+    gotoTop() {
+      scrollTo(0, 0);
+    },
+    getLikeDynamic() {
+      var dynamicIds = [];
+      // console.log(this.dynamics);
+
+      for (var i in this.dynamics) {
+        // console.log(this.dynamics[i]);
+        dynamicIds.push(this.dynamics[i].id);
+      }
+      // console.log(dynamicIds);
+
+      this.$http({
+        method: "get",
+        url: "/like/queryIsLike",
+        params: {
+          likerId: this.$store.state.userInfo.uid,
+          dynamicIds: dynamicIds
+        },
+        paramsSerializer: params => {
+          return this.$qs.stringify(params, { indices: false });
+        }
+      }).then(res => {
+        // console.log(res);
+        var likes = res.data;
+        var dynamicIds = [];
+        for (var i in likes) {
+          dynamicIds.push(likes[i].dynamicId);
+        }
+        this.likeDynamicIds = dynamicIds;
+        // console.log(this.dynamicIds);
+      });
+    }
   },
   watch: {
     dynamicUpdate() {
       setTimeout(() => {
         this.searAllDynamic();
-      }, 200);
+      }, 300);
     },
     currentPage() {
       this.searAllDynamic();
+      this.gotoTop();
     },
     dynamics() {
       var dynamicContent = this.$refs.dynamicContent;
@@ -319,6 +468,7 @@ export default {
     },
     "dynamicSearch.key"() {
       this.searAllDynamic();
+      this.gotoTop();
     },
     "dynamicSearch.sortBy"() {
       this.searAllDynamic();
@@ -334,9 +484,9 @@ export default {
     },
     "$store.state.dynamicPush"() {
       // console.log("dynamicPush");
-
       this.searAllDynamic();
     },
+
     verify
   },
 
@@ -345,13 +495,14 @@ export default {
       // this.searAllDynamic();
     });
     this.connect();
+    this.verify().then(() => {
+      this.$emit("newsIsShow", this.show);
+      this.getFavorMusicId();
+    });
   },
   updated() {},
   mounted() {
     this.show = true;
-    this.verify().then(() => {
-      this.$emit("newsIsShow", this.show);
-    });
 
     let that = this;
     setTimeout(() => {

@@ -1,6 +1,12 @@
 <template>
   <v-card class="mt-4 pa-4" width="1112">
-    <News ref="news" v-on:newsIsShow="newsIsShow" v-bind:dynamicSearch="dynamicSearch" class="news"></News>
+    <News
+      ref="news"
+      v-on:newsIsShow="newsIsShow"
+      v-bind:queryFavor="true"
+      v-bind:dynamicSearch="dynamicSearch"
+      class="news"
+    ></News>
   </v-card>
 </template>
 <script>
@@ -28,6 +34,8 @@ export default {
     newsIsShow(show) {
       // console.log("favoer");
       this.getFavorDynamicId();
+      console.log(this.dynamicSearch.ids);
+
       if (show && this.dynamicSearch.ids != null) {
         this.$refs.news.searAllDynamic();
       }
