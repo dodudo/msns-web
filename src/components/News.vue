@@ -125,13 +125,15 @@
           <v-spacer></v-spacer>
           <v-card flat>
             <v-btn @click="likeDynamic(dynamic,index)" icon>
-              <v-icon :color="likeDynamicIds.indexOf(dynamic.id)==-1 ? 'grey' : 'red'">mdi-thumb-up</v-icon>
+              <v-icon
+                :color="likeDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : 'red'"
+              >mdi-thumb-up</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.likeCount}}</span>
           </v-card>
           <v-card flat class="mx-3">
-            <v-btn icon>
-              <v-icon>mdi-heart</v-icon>
+            <v-btn @click="favorDynamic(dynamic,index)" icon>
+              <v-icon :color="favorDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : 'red'">mdi-heart</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.favorCount}}</span>
           </v-card>
@@ -205,7 +207,8 @@ export default {
     userInfo: {},
     show: false,
     favorMusicIds: [],
-    likeDynamicIds: []
+    likeDynamicIds: [],
+    favorDynamicIds: []
   }),
   methods: {
     showComment(e) {
@@ -214,7 +217,7 @@ export default {
     },
     searAllDynamic() {
       this.dynamicSearch.page = this.currentPage;
-      console.log(this.dynamicSearch);
+      // console.log(this.dynamicSearch);
       // console.log(this.queryFavor);
       if (this.queryFavor && this.dynamicSearch.ids.length == 0) {
         console.log(this.dynamicSearch);
@@ -252,6 +255,7 @@ export default {
         }
         this.dynamics = Object.assign({}, this.dynamics);
         this.getLikeDynamic();
+        this.getFavorDynamic();
         // console.log(this.dynamics[0]);
       });
     },
@@ -316,7 +320,7 @@ export default {
         this.$http({
           method: "delete",
           url: `/like`,
-          params: {
+          data: {
             collectorId: this.$store.state.userInfo.uid,
             dynamicId: dynamic.id
           },
@@ -340,6 +344,45 @@ export default {
           this.getLikeDynamic();
           this.dynamics[index].likeCount += 1;
         });
+      }
+    },
+    favorDynamic(dynamic, index) {
+      if (this.favorDynamicIds.indexOf(dynamic.id) != -1) {
+        if (confirm(`您确定要取消收藏吗？`)) {
+          this.$http({
+            method: "delete",
+            url: `/favor/dynamic/`,
+            data: {
+              collectorId: this.$store.state.userInfo.uid,
+              dynamicId: dynamic.id
+            }
+          })
+            .then(() => {
+              this.getFavorDynamic();
+              this.dynamics[index].favorCount -= 1;
+              alert("取消收藏成功!");
+            })
+            .catch(() => {
+              alert("取消收藏失败！");
+            });
+        }
+      } else {
+        this.$http({
+          method: "post",
+          url: `/favor/dynamic`,
+          data: {
+            collectorId: this.$store.state.userInfo.uid,
+            dynamicId: dynamic.id
+          }
+        })
+          .then(() => {
+            this.getFavorDynamic();
+            this.dynamics[index].favorCount += 1;
+            alert("收藏成功!");
+          })
+          .catch(() => {
+            alert("收藏失败！");
+          });
       }
     },
     formatDate(time) {
@@ -450,6 +493,36 @@ export default {
         this.likeDynamicIds = dynamicIds;
         // console.log(this.dynamicIds);
       });
+    },
+    getFavorDynamic() {
+      var dynamicIds = [];
+      // console.log(this.dynamics);
+
+      for (var i in this.dynamics) {
+        // console.log(this.dynamics[i]);
+        dynamicIds.push(this.dynamics[i].id);
+      }
+      // console.log(dynamicIds);
+
+      this.$http({
+        method: "get",
+        url: "/favor/dynamic/queryIsFavor",
+        params: {
+          uid: this.$store.state.userInfo.uid,
+          dynamicIds: dynamicIds
+        },
+        paramsSerializer: params => {
+          return this.$qs.stringify(params, { indices: false });
+        }
+      }).then(res => {
+        // console.log(res);
+        var dynamicFavors = res.data;
+        var dynamicIds = [];
+        for (var i in dynamicFavors) {
+          dynamicIds.push(dynamicFavors[i].dynamicId);
+        }
+        this.favorDynamicIds = dynamicIds;
+      });
     }
   },
   watch: {
@@ -463,8 +536,11 @@ export default {
       this.gotoTop();
     },
     dynamics() {
-      var dynamicContent = this.$refs.dynamicContent;
-      this.foldControl(dynamicContent);
+      setTimeout(() => {
+        var dynamicContent = this.$refs.dynamicContent;
+        // console.log(this.$refs);
+        this.foldControl(dynamicContent);
+      }, 100);
     },
     "dynamicSearch.key"() {
       this.searAllDynamic();
@@ -503,7 +579,6 @@ export default {
   updated() {},
   mounted() {
     this.show = true;
-
     let that = this;
     setTimeout(() => {
       // console.log(that.$refs);
