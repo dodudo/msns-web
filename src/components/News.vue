@@ -126,19 +126,21 @@
           <v-card flat>
             <v-btn @click="likeDynamic(dynamic,index)" icon>
               <v-icon
-                :color="likeDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : 'red'"
+                :color="likeDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : '#73c9e5'"
               >mdi-thumb-up</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.likeCount}}</span>
           </v-card>
           <v-card flat class="mx-3">
             <v-btn @click="favorDynamic(dynamic,index)" icon>
-              <v-icon :color="favorDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : 'red'">mdi-heart</v-icon>
+              <v-icon
+                :color="favorDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : 'pink'"
+              >mdi-heart</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.favorCount}}</span>
           </v-card>
           <v-card flat>
-            <v-btn @click="dynamic.show_input = !dynamic.show_input" icon>
+            <v-btn @click="showComment(index)" icon>
               <v-icon>mdi-message-reply</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.commentCount}}</span>
@@ -150,6 +152,7 @@
             clear-icon="mdi-close-circle-outline"
             label="评论哈哈哈"
             class="px-4"
+            :value="comment.commentContent"
             outlined
             flat
             hide-details
@@ -208,13 +211,42 @@ export default {
     show: false,
     favorMusicIds: [],
     likeDynamicIds: [],
-    favorDynamicIds: []
+    favorDynamicIds: [],
+    comment: {},
+    commentRequest: {
+      key: "",
+      page: 1,
+      sortBy: "commentDate",
+      desc: true,
+      isAll: true
+    }
   }),
   methods: {
+    //显示评论框
     showComment(e) {
-      // console.log(e);
       this.dynamics[e].show_input = !this.dynamics[e].show_input;
+      if (this.dynamics[e].show_input) {
+        this.getComment(this.dynamics[e].id, null);
+      }
     },
+    getComment(dynamicId, pid) {
+      this.comment.commentContent = "";
+      this.comment.dynamicId = dynamicId;
+      this.comment.pid = pid;
+      var commentObj = Object.assign({}, this.comment);
+      this.$http({
+        method: "post",
+        url: "/comment/page",
+        data: commentObj,
+        params: this.commentRequest,
+        paramsSerializer: params => {
+          return this.$qs.stringify(params, { indices: false });
+        }
+      }).then(res => {
+        console.log(res);
+      });
+    },
+    // 根据分页条件查询动态
     searAllDynamic() {
       this.dynamicSearch.page = this.currentPage;
       // console.log(this.dynamicSearch);
@@ -321,11 +353,8 @@ export default {
           method: "delete",
           url: `/like`,
           data: {
-            collectorId: this.$store.state.userInfo.uid,
+            likerId: this.$store.state.userInfo.uid,
             dynamicId: dynamic.id
-          },
-          paramsSerializer: params => {
-            return this.$qs.stringify(params, { indices: false });
           }
         }).then(() => {
           this.getLikeDynamic();
@@ -536,11 +565,9 @@ export default {
       this.gotoTop();
     },
     dynamics() {
-      setTimeout(() => {
-        var dynamicContent = this.$refs.dynamicContent;
-        // console.log(this.$refs);
-        this.foldControl(dynamicContent);
-      }, 100);
+      var dynamicContent = this.$refs.dynamicContent;
+      // console.log(this.$refs);
+      this.foldControl(dynamicContent);
     },
     "dynamicSearch.key"() {
       this.searAllDynamic();
@@ -586,7 +613,7 @@ export default {
       var dynamicContent = refs.dynamicContent;
       this.foldControl(dynamicContent);
       // console.log(dynamicContent);
-    }, 200);
+    }, 300);
   }
 };
 </script>
