@@ -140,13 +140,60 @@
             <span class="caption">{{dynamic.favorCount}}</span>
           </v-card>
           <v-card flat>
-            <v-btn @click="showComment(index)" icon>
+            <v-btn @click="showComment(index,null)" icon>
               <v-icon>mdi-message-reply</v-icon>
             </v-btn>
             <span class="caption">{{dynamic.commentCount}}</span>
           </v-card>
         </v-card-actions>
+
         <v-card v-if="dynamic.show_input" flat>
+          <v-card flat class="mx-2">
+            <v-list class="pa-0" three-line>
+              <v-subheader style="height:20px">所有评论</v-subheader>
+              <template v-for="(commentItem, index) in dynamic.comments">
+                <v-divider v-if="index!=0 && index!=dynamic.comments.length" :key="index+'a'"></v-divider>
+                <v-list-item :key="index+'comment'">
+                  <v-list-item-content>
+                    <v-list-item-content class="pa-0" size="30">
+                      <v-row align="center">
+                        <v-col cols="1" class="pa-0" style="height:40px">
+                          <v-list-item-avatar class="ma-0 ml-4" size="40">
+                            <v-img
+                              :src="commentItem.replyAvatarUrl == null ? require('../assets/defaultCover.jpg') :commentItem.replyAvatarUrl "
+                            ></v-img>
+                          </v-list-item-avatar>
+                        </v-col>
+                        <v-col cols="2" class="py-0" style="height:20px">
+                          <v-list-item-title v-html="commentItem.replyName"></v-list-item-title>
+                        </v-col>
+                      </v-row>
+                    </v-list-item-content>
+                    <v-list-item-title
+                      style="margin-left: 56px"
+                      v-html="commentItem.commentContent"
+                    ></v-list-item-title>
+                    <v-list-item-subtitle
+                      class="overline"
+                      v-html="formatDate(commentItem.commentDate,'yyyy-MM-dd hh:mm:ss')"
+                    ></v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-list>
+            <v-list-item
+              v-if="(dynamic.comentTotal/commentRequest.rows) >= commentRequest.page "
+              class="mb-1"
+              color="blue"
+              dense
+              style="height:24px"
+              link
+            >
+              <v-list-item-content class="pa-0" style="height:24px;text-align:center">
+                <div @click="getMoreComment(index,null)" style="color:#73c9e5">更多评论</div>
+              </v-list-item-content>
+            </v-list-item>
+          </v-card>
           <v-textarea
             clearable
             clear-icon="mdi-close-circle-outline"
@@ -186,7 +233,7 @@ export default {
   },
   data: () => ({
     dialog: false,
-    dynamics: [],
+    dynamics: { 0: {} },
     radioGroup: 1,
     radioItems: [
       { name: "色情低俗", value: "porn" },
@@ -216,25 +263,81 @@ export default {
     commentRequest: {
       key: "",
       page: 1,
+      rows: 5,
       sortBy: "commentDate",
       desc: true,
       isAll: true
-    }
+    },
+    dynamicList: []
   }),
   methods: {
+    //获取更多评论
+    getMoreComment(index, pid) {
+      this.commentRequest.page += 1;
+
+      this.dealCommentData(index, pid);
+    },
     //显示评论框
-    showComment(e) {
-      this.dynamics[e].show_input = !this.dynamics[e].show_input;
-      if (this.dynamics[e].show_input) {
-        this.getComment(this.dynamics[e].id, null);
+    showComment(index, pid) {
+      this.dynamics[index].show_input = !this.dynamics[index].show_input;
+      this.dynamics[index].comments = [];
+      this.commentRequest.page = 1;
+      if (this.dynamics[index].show_input) {
+        this.dealCommentData(index, pid);
       }
     },
-    getComment(dynamicId, pid) {
+    dealCommentData(index, pid) {
+      this.getComment(this.dynamics[index].id, pid).then(resp => {
+        resp = Object.assign({}, resp);
+        this.dynamics[index].comentTotal = resp.total;
+        let commentList = [];
+        if (
+          this.dynamics[index].comments != null ||
+          this.dynamics[index].comments != undefined
+        ) {
+          commentList = this.dynamics[index].comments;
+        }
+
+        for (let i = 0; i < resp.items.length; i++) {
+          commentList.push(resp.items[i]);
+        }
+        this.dynamics[index].comments = commentList;
+        this.dynamics[index] = Object.assign({}, this.dynamics[index]);
+        this.$set(this.dynamics, index, this.dynamics[index]);
+        for (
+          let i = (this.commentRequest.page - 1) * this.commentRequest.rows;
+          i < this.dynamics[index].comments.length;
+          i++
+        ) {
+          this.getUserNameAndAvatar(
+            this.dynamics[index].comments[i].replyId
+          ).then(res => {
+            this.dynamics[index].comments[i].replyName = res.uname;
+            this.$set(
+              this.dynamics[index].comments,
+              i,
+              this.dynamics[index].comments[i]
+            );
+            this.dynamics[index].comments[i].replyAvatarUrl = res.avatarUrl;
+          });
+          this.getUserNameAndAvatar(
+            this.dynamics[index].comments[i].respondentId
+          ).then(res => {
+            // this.$set(this.dynamics[index].comments, i, res.uname);
+            this.dynamics[index].comments[i].responseName = res.uname;
+          });
+        }
+      });
+      console.log(this.dynamics[index]);
+    },
+    //获取评论
+    async getComment(dynamicId, pid) {
       this.comment.commentContent = "";
       this.comment.dynamicId = dynamicId;
       this.comment.pid = pid;
       var commentObj = Object.assign({}, this.comment);
-      this.$http({
+      var commentResp = {};
+      await this.$http({
         method: "post",
         url: "/comment/page",
         data: commentObj,
@@ -243,9 +346,11 @@ export default {
           return this.$qs.stringify(params, { indices: false });
         }
       }).then(res => {
-        console.log(res);
+        commentResp = res.data;
       });
+      return commentResp;
     },
+
     // 根据分页条件查询动态
     searAllDynamic() {
       this.dynamicSearch.page = this.currentPage;
@@ -291,6 +396,7 @@ export default {
         // console.log(this.dynamics[0]);
       });
     },
+    //收藏/取消收藏音乐
     favorMusic(music) {
       if (this.favorMusicIds.indexOf(music.id) != -1) {
         if (confirm(`您确定要取消收藏${music.musicName}吗？`)) {
@@ -342,6 +448,7 @@ export default {
           });
       }
     },
+    //点赞|取消点赞
     likeDynamic(dynamic, index) {
       if (
         this.$store.state.userInfo.uid == null ||
@@ -375,6 +482,7 @@ export default {
         });
       }
     },
+    //收藏|取消动态
     favorDynamic(dynamic, index) {
       if (this.favorDynamicIds.indexOf(dynamic.id) != -1) {
         if (confirm(`您确定要取消收藏吗？`)) {
@@ -414,6 +522,7 @@ export default {
           });
       }
     },
+    //格式化日期
     formatDate(time) {
       var date = new Date(time);
       var today = new Date();
@@ -423,6 +532,7 @@ export default {
         return formatDate(date, "yyyy-MM-dd hh:mm");
       }
     },
+    //控制动态内容是否折叠
     foldControl(dynamicContent) {
       this.$nextTick(() => {
         if (dynamicContent != null) {
@@ -439,6 +549,7 @@ export default {
         }
       });
     },
+    //获取用户收藏的音乐id
     async getFavorMusicId() {
       await this.$http({
         method: "get",
@@ -448,6 +559,7 @@ export default {
         this.favorMusicIds = resp.data;
       });
     },
+    //获取用户名和头像
     async getUserNameAndAvatar(uid) {
       var user = {};
       await this.$http
@@ -462,23 +574,29 @@ export default {
         });
       return user;
     },
+    //播放音乐
     playMusic(item) {
+      //将音乐和音乐所在收藏位置做状态管理
       this.$store.dispatch("changeMusic", item);
       this.$store.dispatch("changeMusicIndex", -1);
     },
+    //初始连接
     onConnected: function() {
       //订阅频道
       const topic = "/exchange/msns.dynamic.exchange/dynamic.#";
       this.dynamicClient.subscribe(topic, this.responseCallback, this.onFailed);
       // console.log(fram);
     },
+    //当失败时
     onFailed(fram) {
       console.log(fram);
     },
+    //当由数据响应时
     responseCallback(fram) {
       this.dynamicUpdate = !this.dynamicUpdate;
       console.log("返回" + fram.body);
     },
+    //连接rabbitmq
     connect() {
       const headers = {
         login: MQTT_USERNAME,
@@ -488,10 +606,13 @@ export default {
       };
       this.dynamicClient.connect(headers, this.onConnected, this.onFailed);
     },
+    //验证用户
     verify,
+    //回到顶部
     gotoTop() {
       scrollTo(0, 0);
     },
+    //获取用户对某些动态是否点赞
     getLikeDynamic() {
       var dynamicIds = [];
       // console.log(this.dynamics);
@@ -523,6 +644,7 @@ export default {
         // console.log(this.dynamicIds);
       });
     },
+    //获取用户是否关注此页的某些动态
     getFavorDynamic() {
       var dynamicIds = [];
       // console.log(this.dynamics);
@@ -554,6 +676,7 @@ export default {
       });
     }
   },
+  //监听数据变化
   watch: {
     dynamicUpdate() {
       setTimeout(() => {
@@ -593,18 +716,23 @@ export default {
     verify
   },
 
+  //钩子函数，在渲染页面前初始化
   created() {
-    this.$nextTick(() => {
-      // this.searAllDynamic();
-    });
+    // this.$nextTick(() => {
+    //   // this.searAllDynamic();
+    // });
+    //连接
     this.connect();
+    //验证用户后调用父方法和获取用户收藏的音乐
     this.verify().then(() => {
       this.$emit("newsIsShow", this.show);
       this.getFavorMusicId();
     });
   },
   updated() {},
+  //在渲染页面之后执行
   mounted() {
+    //控制动态内容若过长则显示展开按钮
     this.show = true;
     let that = this;
     setTimeout(() => {
