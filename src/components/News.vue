@@ -150,7 +150,10 @@
         <v-card v-if="dynamic.show_input" flat>
           <v-card flat class="mx-2">
             <v-list class="pa-0" three-line>
-              <v-subheader style="height:20px">所有评论</v-subheader>
+              <v-subheader
+                style="height:20px"
+                v-if="(dynamic.commentTotal/commentRequest.rows) >= commentRequest.page "
+              >所有评论</v-subheader>
               <template v-for="(commentItem, index) in dynamic.comments">
                 <v-divider v-if="index!=0 && index!=dynamic.comments.length" :key="index+'a'"></v-divider>
                 <v-list-item :key="index+'comment'">
@@ -173,16 +176,48 @@
                       style="margin-left: 56px"
                       v-html="commentItem.commentContent"
                     ></v-list-item-title>
-                    <v-list-item-subtitle
-                      class="overline"
-                      v-html="formatDate(commentItem.commentDate,'yyyy-MM-dd hh:mm:ss')"
-                    ></v-list-item-subtitle>
+                    <v-list-item-subtitle style="margin-left: 56px" class="overline">
+                      {{formatDate(commentItem.commentDate,'yyyy-MM-dd hh:mm:ss')}}
+                      <a>&nbsp;回复</a>
+                    </v-list-item-subtitle>
+                    <!-- 子评论 -->
+                    <v-list-item :key="index+'comment'">
+                      <v-list-item-content>
+                        <v-list-item-content class="pa-0" size="30">
+                          <v-row align="center">
+                            <v-col cols="1" class="pa-0" style="height:40px">
+                              <v-list-item-avatar class="ma-0 ml-4" size="40">
+                                <v-img
+                                  :src="commentItem.replyAvatarUrl == null ? require('../assets/defaultCover.jpg') :commentItem.replyAvatarUrl "
+                                ></v-img>
+                              </v-list-item-avatar>
+                            </v-col>
+                            <v-col cols="2" class="py-0" style="height:20px">
+                              <v-list-item-title v-html="commentItem.replyName"></v-list-item-title>
+                            </v-col>
+                          </v-row>
+                        </v-list-item-content>
+                        <v-list-item-title
+                          style="margin-left: 56px"
+                          v-html="commentItem.commentContent"
+                        ></v-list-item-title>
+                        <v-list-item-subtitle style="margin-left: 56px" class="overline">
+                          {{formatDate(commentItem.commentDate,'yyyy-MM-dd hh:mm:ss')}}
+                          <a>&nbsp;回复</a>
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+
+                    <!-- <v-list-item-content class="pa-0" style="height:24px;text-align:center">
+                      <a @click="getMoreComment(index,null)" style="color:#73c9e5">更多回复</a>
+                    </v-list-item-content>-->
                   </v-list-item-content>
                 </v-list-item>
               </template>
             </v-list>
             <v-list-item
-              v-if="(dynamic.comentTotal/commentRequest.rows) >= commentRequest.page "
+              v-if="dynamics[index].commentTotal / commentRequest.rows >=
+              commentRequest.page"
               class="mb-1"
               color="blue"
               dense
@@ -197,9 +232,9 @@
           <v-textarea
             clearable
             clear-icon="mdi-close-circle-outline"
-            label="评论哈哈哈"
-            class="px-4"
-            :value="comment.commentContent"
+            :label="'评论'+dynamic.author"
+            class="px-4 py-2"
+            :value="commentContent"
             outlined
             flat
             hide-details
@@ -259,6 +294,7 @@ export default {
     favorMusicIds: [],
     likeDynamicIds: [],
     favorDynamicIds: [],
+    commentContent: "",
     comment: {},
     commentRequest: {
       key: "",
@@ -268,67 +304,95 @@ export default {
       desc: true,
       isAll: true
     },
-    dynamicList: []
+    dynamicList: [],
+    commentList: {},
+    commentTotal: 0
   }),
   methods: {
+    //新增评论
+    // addComment(pid, dynamicId, replyId, respondentId) {},
     //获取更多评论
-    getMoreComment(index, pid) {
+    async getMoreComment(index, pid) {
       this.commentRequest.page += 1;
 
-      this.dealCommentData(index, pid);
+      await this.dealCommentData(
+        index,
+        pid,
+        this.commentRequest.page,
+        this.commentRequest.rows,
+        this.dynamics[index].comments
+      ).then(res => {
+        this.dynamics[index].comments = res.commentList;
+        this.dynamics[index].commentTotal = res.commentTotal;
+
+        this.dynamics[index] = Object.assign({}, this.dynamics[index]);
+        this.$set(this.dynamics, index, this.dynamics[index]);
+      });
     },
     //显示评论框
-    showComment(index, pid) {
+    async showComment(index, pid) {
       this.dynamics[index].show_input = !this.dynamics[index].show_input;
-      this.dynamics[index].comments = [];
       this.commentRequest.page = 1;
+
       if (this.dynamics[index].show_input) {
-        this.dealCommentData(index, pid);
+        this.dynamics[index].comments = null;
+        await this.dealCommentData(
+          index,
+          pid,
+          this.commentRequest.page,
+          this.commentRequest.rows,
+          this.dynamics[index].comments
+        ).then(res => {
+          this.dynamics[index].comments = res.commentList;
+          this.dynamics[index].commentTotal = res.commentTotal;
+
+          this.dynamics[index] = Object.assign({}, this.dynamics[index]);
+          this.$set(this.dynamics, index, this.dynamics[index]);
+        });
       }
     },
-    dealCommentData(index, pid) {
-      this.getComment(this.dynamics[index].id, pid).then(resp => {
+
+    async dealCommentData(index, pid, page, rows, oldComments) {
+      console.log(oldComments);
+      var commentList = [];
+      await this.getComment(this.dynamics[index].id, pid).then(async resp => {
         resp = Object.assign({}, resp);
-        this.dynamics[index].comentTotal = resp.total;
-        let commentList = [];
-        if (
-          this.dynamics[index].comments != null ||
-          this.dynamics[index].comments != undefined
-        ) {
-          commentList = this.dynamics[index].comments;
+        this.commentTotal = resp.total;
+
+        if (oldComments != null || oldComments != undefined) {
+          for (let i in oldComments) {
+            commentList.push(oldComments[i]);
+          }
         }
 
         for (let i = 0; i < resp.items.length; i++) {
           commentList.push(resp.items[i]);
         }
-        this.dynamics[index].comments = commentList;
-        this.dynamics[index] = Object.assign({}, this.dynamics[index]);
-        this.$set(this.dynamics, index, this.dynamics[index]);
-        for (
-          let i = (this.commentRequest.page - 1) * this.commentRequest.rows;
-          i < this.dynamics[index].comments.length;
-          i++
-        ) {
-          this.getUserNameAndAvatar(
-            this.dynamics[index].comments[i].replyId
+        this.commentList = commentList;
+        this.commentList = Object.assign({}, this.commentList);
+
+        for (let i = (page - 1) * rows; i < commentList.length; i++) {
+          await this.getUserNameAndAvatar(this.commentList[i].replyId).then(
+            res => {
+              this.commentList[i].replyName = res.uname;
+              this.commentList[i].replyAvatarUrl = res.avatarUrl;
+              this.$set(this.commentList, i, this.commentList[i]);
+            }
+          );
+
+          await this.getUserNameAndAvatar(
+            this.commentList[i].respondentId
           ).then(res => {
-            this.dynamics[index].comments[i].replyName = res.uname;
-            this.$set(
-              this.dynamics[index].comments,
-              i,
-              this.dynamics[index].comments[i]
-            );
-            this.dynamics[index].comments[i].replyAvatarUrl = res.avatarUrl;
-          });
-          this.getUserNameAndAvatar(
-            this.dynamics[index].comments[i].respondentId
-          ).then(res => {
-            // this.$set(this.dynamics[index].comments, i, res.uname);
-            this.dynamics[index].comments[i].responseName = res.uname;
+            this.commentList[i].responseName = res.uname;
+            this.$set(this.commentList, i, this.commentList[i]);
           });
         }
       });
-      console.log(this.dynamics[index]);
+
+      var commentInfo = {};
+      commentInfo.commentTotal = this.commentTotal;
+      commentInfo.commentList = this.commentList;
+      return commentInfo;
     },
     //获取评论
     async getComment(dynamicId, pid) {
