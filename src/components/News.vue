@@ -181,32 +181,34 @@
                       <a>&nbsp;回复</a>
                     </v-list-item-subtitle>
                     <!-- 子评论 -->
-                    <v-list-item :key="index+'comment'">
-                      <v-list-item-content>
-                        <v-list-item-content class="pa-0" size="30">
-                          <v-row align="center">
-                            <v-col cols="1" class="pa-0" style="height:40px">
-                              <v-list-item-avatar class="ma-0 ml-4" size="40">
-                                <v-img
-                                  :src="commentItem.replyAvatarUrl == null ? require('../assets/defaultCover.jpg') :commentItem.replyAvatarUrl "
-                                ></v-img>
-                              </v-list-item-avatar>
-                            </v-col>
-                            <v-col cols="2" class="py-0" style="height:20px">
-                              <v-list-item-title v-html="commentItem.replyName"></v-list-item-title>
-                            </v-col>
-                          </v-row>
+                    <template v-for="(sonCommentItem, index) in commentItem.sonComments">
+                      <v-list-item :key="index+'comment'">
+                        <v-list-item-content>
+                          <v-list-item-content class="pa-0" size="30">
+                            <v-row align="center">
+                              <v-col cols="1" class="pa-0" style="height:40px">
+                                <v-list-item-avatar class="ma-0 ml-4" size="40">
+                                  <v-img
+                                    :src="sonCommentItem.replyAvatarUrl == null ? require('../assets/defaultCover.jpg') :commentItem.replyAvatarUrl "
+                                  ></v-img>
+                                </v-list-item-avatar>
+                              </v-col>
+                              <v-col cols="2" class="py-0" style="height:20px">
+                                <v-list-item-title v-html="sonCommentItem.replyName"></v-list-item-title>
+                              </v-col>
+                            </v-row>
+                          </v-list-item-content>
+                          <v-list-item-title
+                            style="margin-left: 56px"
+                            v-html="sonCommentItem.commentContent"
+                          ></v-list-item-title>
+                          <v-list-item-subtitle style="margin-left: 56px" class="overline">
+                            {{formatDate(sonCommentItem.commentDate,'yyyy-MM-dd hh:mm:ss')}}
+                            <a>&nbsp;回复</a>
+                          </v-list-item-subtitle>
                         </v-list-item-content>
-                        <v-list-item-title
-                          style="margin-left: 56px"
-                          v-html="commentItem.commentContent"
-                        ></v-list-item-title>
-                        <v-list-item-subtitle style="margin-left: 56px" class="overline">
-                          {{formatDate(commentItem.commentDate,'yyyy-MM-dd hh:mm:ss')}}
-                          <a>&nbsp;回复</a>
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
+                      </v-list-item>
+                    </template>
 
                     <!-- <v-list-item-content class="pa-0" style="height:24px;text-align:center">
                       <a @click="getMoreComment(index,null)" style="color:#73c9e5">更多回复</a>
@@ -328,6 +330,22 @@ export default {
         this.dynamics[index] = Object.assign({}, this.dynamics[index]);
         this.$set(this.dynamics, index, this.dynamics[index]);
       });
+      for (let i in this.dynamics[index].comments) {
+        await this.dealCommentData(
+          index,
+          this.dynamics[index].comments[i].id,
+          this.dynamics[index].comments[i].page,
+          3,
+          this.dynamics[index].comments[i].sonComments
+        ).then(res => {
+          this.dynamics[index].comments[i].sonComments = res.commentList;
+          this.dynamics[index].comments[i].sonCommentTotal = res.commentTotal;
+
+          this.dynamics[index] = Object.assign({}, this.dynamics[index]);
+          this.$set(this.dynamics, index, this.dynamics[index]);
+          console.log(this.dynamics[index].comments[i]);
+        });
+      }
     },
     //显示评论框
     async showComment(index, pid) {
@@ -349,11 +367,28 @@ export default {
           this.dynamics[index] = Object.assign({}, this.dynamics[index]);
           this.$set(this.dynamics, index, this.dynamics[index]);
         });
+        // console.log(this.dynamics[index].comments);
+        for (let i in this.dynamics[index].comments) {
+          await this.dealCommentData(
+            index,
+            this.dynamics[index].comments[i].id,
+            this.dynamics[index].comments[i].page,
+            3,
+            this.dynamics[index].comments[i].sonComments
+          ).then(res => {
+            this.dynamics[index].comments[i].sonComments = res.commentList;
+            this.dynamics[index].comments[i].sonCommentTotal = res.commentTotal;
+
+            this.dynamics[index] = Object.assign({}, this.dynamics[index]);
+            this.$set(this.dynamics, index, this.dynamics[index]);
+            console.log(this.dynamics[index].comments[i]);
+          });
+        }
       }
     },
 
     async dealCommentData(index, pid, page, rows, oldComments) {
-      console.log(oldComments);
+      // console.log(oldComments);
       var commentList = [];
       await this.getComment(this.dynamics[index].id, pid).then(async resp => {
         resp = Object.assign({}, resp);
@@ -366,6 +401,7 @@ export default {
         }
 
         for (let i = 0; i < resp.items.length; i++) {
+          resp.items[i].page = 1;
           commentList.push(resp.items[i]);
         }
         this.commentList = commentList;
