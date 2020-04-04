@@ -1,4 +1,4 @@
-<template >
+<template>
   <v-app style="width:1518px">
     <div style="width:1518px;">
       <TopBar v-on:topBarSearchVal="topBarSearchVal"></TopBar>

@@ -1,7 +1,7 @@
 <template>
   <v-card flat width="700" class="mx-auto">
     <v-card flat>
-      <v-card flat class="mx-auto pa-0" width="700" v-show="dynamics[0]==undefined">
+      <v-card flat class="mx-auto pa-0" width="700" v-show="dynamics[0] == undefined">
         <v-card-text style="text-align:center">没有动态呢</v-card-text>
       </v-card>
       <v-card
@@ -15,12 +15,24 @@
         <v-list-item>
           <v-list-item-avatar size="50" color="grey">
             <v-img
-              :src="dynamic.authorAvatar == null ? require('../assets/default_avatar.jpg') : dynamic.authorAvatar"
+              :src="
+                dynamic.authorAvatar == null
+                  ? require('../assets/default_avatar.jpg')
+                  : dynamic.authorAvatar
+              "
             ></v-img>
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="body-1">{{dynamic.author}}</v-list-item-title>
-            <v-list-item-subtitle class="body-2">{{formatDate(dynamic.publishDate)}}</v-list-item-subtitle>
+            <v-list-item-title class="body-1">
+              {{
+              dynamic.author
+              }}
+            </v-list-item-title>
+            <v-list-item-subtitle class="body-2">
+              {{
+              formatDate(dynamic.publishDate)
+              }}
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-spacer></v-spacer>
           <v-menu offset-y>
@@ -82,10 +94,10 @@
             >{{ dynamic.fold ? "展开" : "收起" }}</v-btn>
           </v-row>
           <v-row>
-            <v-col v-show="imgUrl!=''" v-for="(imgUrl,i) in dynamics[index].imgUrls" :key="i">
+            <v-col v-show="imgUrl != ''" v-for="(imgUrl, i) in dynamics[index].imgUrls" :key="i">
               <v-img
                 :width="dynamics[index].imgUrls.length <= 3 ? 322 : 200"
-                v-if="imgUrl!=''"
+                v-if="imgUrl != ''"
                 :height="dynamics[index].imgUrls.length <= 3 ? 322 : 200"
                 :src="imgUrl"
               ></v-img>
@@ -107,13 +119,25 @@
                 </v-overlay>
               </v-card>
               <v-list-item-content class="ml-3">
-                <v-list-item-title>{{dynamic.music.musicName}}</v-list-item-title>
-                <v-list-item-subtitle>{{dynamic.music.musicAuthor}}</v-list-item-subtitle>
+                <v-list-item-title>
+                  {{
+                  dynamic.music.musicName
+                  }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{
+                  dynamic.music.musicAuthor
+                  }}
+                </v-list-item-subtitle>
               </v-list-item-content>
               <v-card flat>
                 <v-btn @click.stop="favorMusic(dynamic.music)" icon>
                   <v-icon
-                    :color="favorMusicIds.indexOf(dynamic.music.id) == -1 ? 'grey' : 'red'"
+                    :color="
+                      favorMusicIds.indexOf(dynamic.music.id) == -1
+                        ? 'grey'
+                        : 'red'
+                    "
                   >mdi-heart</v-icon>
                 </v-btn>
               </v-card>
@@ -121,29 +145,35 @@
           </v-list>
         </v-card>
         <v-card-actions>
-          <span class="caption ml-2">浏览次数{{dynamic.viewCount}}</span>
+          <!-- <span class="caption ml-2">浏览次数{{ dynamic.viewCount }}</span> -->
           <v-spacer></v-spacer>
           <v-card flat>
-            <v-btn @click="likeDynamic(dynamic,index)" icon>
+            <v-btn @click="likeDynamic(dynamic, index)" icon>
               <v-icon
-                :color="likeDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : '#73c9e5'"
+                :color="
+                  likeDynamicIds.indexOf(dynamic.id) == -1
+                    ? '#757575'
+                    : '#73c9e5'
+                "
               >mdi-thumb-up</v-icon>
             </v-btn>
-            <span class="caption">{{dynamic.likeCount}}</span>
+            <span class="caption">{{ dynamic.likeCount }}</span>
           </v-card>
           <v-card flat class="mx-3">
-            <v-btn @click="favorDynamic(dynamic,index)" icon>
+            <v-btn @click="favorDynamic(dynamic, index)" icon>
               <v-icon
-                :color="favorDynamicIds.indexOf(dynamic.id)==-1 ? '#757575' : 'pink'"
+                :color="
+                  favorDynamicIds.indexOf(dynamic.id) == -1 ? '#757575' : 'pink'
+                "
               >mdi-heart</v-icon>
             </v-btn>
-            <span class="caption">{{dynamic.favorCount}}</span>
+            <span class="caption">{{ dynamic.favorCount }}</span>
           </v-card>
           <v-card flat>
-            <v-btn @click="showComment(index,null)" icon>
+            <v-btn @click="openComment(index, null, false)" icon>
               <v-icon>mdi-message-reply</v-icon>
             </v-btn>
-            <span class="caption">{{dynamic.commentCount}}</span>
+            <span class="caption">{{ dynamic.commentCount }}</span>
           </v-card>
         </v-card-actions>
 
@@ -152,18 +182,30 @@
             <v-list class="pa-0" three-line>
               <v-subheader
                 style="height:20px"
-                v-if="(dynamic.commentTotal/commentRequest.rows) >= commentRequest.page "
+                v-if="
+                  dynamic.commentTotal / commentRequest.rows >=
+                    commentRequest.page
+                "
               >所有评论</v-subheader>
-              <template v-for="(commentItem, index) in dynamic.comments">
-                <v-divider v-if="index!=0 && index!=dynamic.comments.length" :key="index+'a'"></v-divider>
-                <v-list-item :key="index+'comment'">
+              <template v-for="(commentItem, commentIndex) in dynamic.comments">
+                <v-divider
+                  v-if="
+                    commentIndex != 0 && commentIndex != dynamic.comments.length
+                  "
+                  :key="commentIndex + 'a'"
+                ></v-divider>
+                <v-list-item :key="commentIndex + 'comment'">
                   <v-list-item-content>
                     <v-list-item-content class="pa-0" size="30">
                       <v-row align="center">
                         <v-col cols="1" class="pa-0" style="height:40px">
                           <v-list-item-avatar class="ma-0 ml-4" size="40">
                             <v-img
-                              :src="commentItem.replyAvatarUrl == null ? require('../assets/defaultCover.jpg') :commentItem.replyAvatarUrl "
+                              :src="
+                                commentItem.replyAvatarUrl == null
+                                  ? require('../assets/defaultCover.jpg')
+                                  : commentItem.replyAvatarUrl
+                              "
                             ></v-img>
                           </v-list-item-avatar>
                         </v-col>
@@ -177,49 +219,124 @@
                       v-html="commentItem.commentContent"
                     ></v-list-item-title>
                     <v-list-item-subtitle style="margin-left: 56px" class="overline">
-                      {{formatDate(commentItem.commentDate,'yyyy-MM-dd hh:mm:ss')}}
-                      <a>&nbsp;回复</a>
+                      {{
+                      formatDate(
+                      commentItem.commentDate,
+                      "yyyy-MM-dd hh:mm:ss"
+                      )
+                      }}
+                      <a
+                        text
+                        @click="
+                                setComment(
+                                  commentItem,
+                                  index,
+                                  commentIndex
+                                )
+                              "
+                      >回复</a>
                     </v-list-item-subtitle>
                     <!-- 子评论 -->
-                    <template v-for="(sonCommentItem, index) in commentItem.sonComments">
-                      <v-list-item :key="index+'comment'">
+                    <template v-for="(sonCommentItem, i) in commentItem.sonComments">
+                      <v-list-item :key="i + 'comment'">
                         <v-list-item-content>
                           <v-list-item-content class="pa-0" size="30">
                             <v-row align="center">
-                              <v-col cols="1" class="pa-0" style="height:40px">
-                                <v-list-item-avatar class="ma-0 ml-4" size="40">
+                              <v-col cols="1" class="pa-0" style="height:30px">
+                                <v-list-item-avatar class="ma-0 ml-4" size="30">
                                   <v-img
-                                    :src="sonCommentItem.replyAvatarUrl == null ? require('../assets/defaultCover.jpg') :commentItem.replyAvatarUrl "
+                                    :src="
+                                      sonCommentItem.replyAvatarUrl == null
+                                        ? require('../assets/defaultCover.jpg')
+                                        : sonCommentItem.replyAvatarUrl
+                                    "
                                   ></v-img>
                                 </v-list-item-avatar>
                               </v-col>
-                              <v-col cols="2" class="py-0" style="height:20px">
+                              <v-col cols="2" class="pa-0" style="height:20px">
                                 <v-list-item-title v-html="sonCommentItem.replyName"></v-list-item-title>
                               </v-col>
                             </v-row>
                           </v-list-item-content>
                           <v-list-item-title
-                            style="margin-left: 56px"
+                            style="margin-left: 42px"
                             v-html="sonCommentItem.commentContent"
                           ></v-list-item-title>
-                          <v-list-item-subtitle style="margin-left: 56px" class="overline">
-                            {{formatDate(sonCommentItem.commentDate,'yyyy-MM-dd hh:mm:ss')}}
-                            <a>&nbsp;回复</a>
+                          <v-list-item-subtitle style="margin-left: 42px" class="overline">
+                            {{
+                            formatDate(
+                            sonCommentItem.commentDate,
+                            "yyyy-MM-dd hh:mm:ss"
+                            )
+                            }}
+                            <a
+                              text
+                              @click="
+                                setComment(
+                                  sonCommentItem,
+                                  index,
+                                  commentIndex
+                                )
+                              "
+                            >回复</a>
                           </v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </template>
 
-                    <!-- <v-list-item-content class="pa-0" style="height:24px;text-align:center">
-                      <a @click="getMoreComment(index,null)" style="color:#73c9e5">更多回复</a>
-                    </v-list-item-content>-->
+                    <v-list-item-content
+                      v-if="commentItem.sonCommentTotal / 3 >= commentItem.page"
+                      class="pa-0 ml-6"
+                      style="height:24px;"
+                    >
+                      <a
+                        @click="getMoreSonComment(index, commentIndex)"
+                        style="color:#73c9e5 ;font-size:13px"
+                      >更多回复</a>
+                    </v-list-item-content>
                   </v-list-item-content>
                 </v-list-item>
+                <v-list-item-content
+                  class="pa-0 pl-4"
+                  v-if="commentItem.showCommentInput"
+                  :key="'input' + commentIndex"
+                >
+                  <v-row align="center">
+                    <v-col class="pa-0" cols="10">
+                      <v-textarea
+                        clearable
+                        clear-icon="mdi-close-circle-outline"
+                        :label="'回复' + commentItem.replyNameInput"
+                        class="px-4 py-2"
+                        v-model="commentItem.commentInputContent"
+                        outlined
+                        flat
+                        :error="!commentItem.valid"
+                        :hide-details="commentItem.valid"
+                        :rules="commentItem.commentRules"
+                        rows="1"
+                      ></v-textarea>
+                    </v-col>
+                    <v-col cols="2">
+                      <v-card class="d-flex justify-end my-2" flat>
+                        <v-btn
+                          small
+                          width="80"
+                          dark
+                          color="#BA68C8"
+                          @click="addSonComment(index,commentIndex)"
+                          class="mr-4 caption"
+                        >发表评论</v-btn>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-list-item-content>
               </template>
             </v-list>
             <v-list-item
-              v-if="dynamics[index].commentTotal / commentRequest.rows >=
-              commentRequest.page"
+              v-if="
+                dynamics[index].commentTotal / 5 >= dynamics[index].commentPage
+              "
               class="mb-1"
               color="blue"
               dense
@@ -227,30 +344,53 @@
               link
             >
               <v-list-item-content class="pa-0" style="height:24px;text-align:center">
-                <div @click="getMoreComment(index,null)" style="color:#73c9e5">更多评论</div>
+                <div @click="showComment(index, null, true)" style="color:#73c9e5">更多评论</div>
               </v-list-item-content>
             </v-list-item>
           </v-card>
-          <v-textarea
-            clearable
-            clear-icon="mdi-close-circle-outline"
-            :label="'评论'+dynamic.author"
-            class="px-4 py-2"
-            :value="commentContent"
-            outlined
-            flat
-            hide-details
-            rows="1"
-          ></v-textarea>
-          <v-card class="d-flex justify-end my-2" flat>
-            <v-btn small width="100" dark color="#BA68C8" class="mr-4 caption">发表评论</v-btn>
-          </v-card>
+          <v-form v-model="dynamic.valid">
+            <v-textarea
+              clearable
+              clear-icon="mdi-close-circle-outline"
+              :label="'评论' + dynamic.author"
+              class="px-4 py-2"
+              v-model="dynamic.commentContent"
+              outlined
+              flat
+              :error="!dynamic.valid"
+              :hide-details="dynamic.valid"
+              :rules="dynamic.commentRules"
+              rows="1"
+            ></v-textarea>
+            <v-card class="d-flex justify-end my-2" flat>
+              <v-btn
+                small
+                width="100"
+                dark
+                color="#BA68C8"
+                @click="
+                  addComment(
+                    null,
+                    dynamic.id,
+                    $store.state.userInfo.uid,
+                    dynamic.uid,
+                    index
+                  )
+                "
+                class="mr-4 caption"
+              >发表评论</v-btn>
+            </v-card>
+          </v-form>
         </v-card>
       </v-card>
       <div v-if="totalPage != 0" class="text-center">
         <v-pagination v-model="currentPage" :length="totalPage" :total-visible="7"></v-pagination>
       </div>
     </v-card>
+    <v-snackbar v-model="snackbar" :timeout="1000">
+      {{ snackbarText }}
+      <v-btn color="blue" text @click="snackbar = false">Close</v-btn>
+    </v-snackbar>
   </v-card>
 </template>
 <script>
@@ -308,108 +448,267 @@ export default {
     },
     dynamicList: [],
     commentList: {},
-    commentTotal: 0
+    commentTotal: 0,
+    commentInfo: {},
+    commentRules: [],
+    snackbarText: "",
+    snackbar: false
   }),
   methods: {
-    //新增评论
-    // addComment(pid, dynamicId, replyId, respondentId) {},
-    //获取更多评论
-    async getMoreComment(index, pid) {
-      this.commentRequest.page += 1;
+    //添加子评论
+    addSonComment(dynamicIndex, commentIndex) {
+      //验证
+      if (
+        this.dynamics[dynamicIndex].comments[commentIndex]
+          .commentInputContent == "" ||
+        this.dynamics[dynamicIndex].comments[commentIndex]
+          .commentInputContent == null ||
+        this.dynamics[dynamicIndex].comments[commentIndex]
+          .commentInputContent == undefined
+      ) {
+        this.dynamics[dynamicIndex].comments[commentIndex].commentRules = [
+          v => !!v || "评论内容不能为空!"
+        ];
+        this.dynamics[dynamicIndex].comments[commentIndex].valid = false;
+      } else {
+        this.dynamics[dynamicIndex].comments[commentIndex].valid = true;
+        this.dynamics[dynamicIndex].comments[commentIndex].commentRules = [
+          true
+        ];
 
-      await this.dealCommentData(
-        index,
-        pid,
-        this.commentRequest.page,
-        this.commentRequest.rows,
-        this.dynamics[index].comments
-      ).then(res => {
-        this.dynamics[index].comments = res.commentList;
+        //验证成功，添加评论
+        this.pushComment(
+          this.dynamics[dynamicIndex].comments[commentIndex].id,
+          this.dynamics[dynamicIndex].id,
+          this.$store.state.userInfo.uid,
+          this.dynamics[dynamicIndex].comments[commentIndex].responseIdInput,
+          this.dynamics[dynamicIndex].comments[commentIndex].commentInputContent
+        ).then(res => {
+          this.dynamics[dynamicIndex].comments[
+            commentIndex
+          ].commentInputContent = "";
+          this.dynamics[dynamicIndex].comments[
+            commentIndex
+          ].showCommentInput = false;
+          // console.log(res);
+
+          var comment = Object.assign({}, res);
+          this.dealOneComment(comment).then(() => {
+            this.dynamics[dynamicIndex].comments[
+              commentIndex
+            ].sonComments.unshift(comment);
+          });
+        });
+      }
+    },
+    async dealOneComment(comment) {
+      await this.getUserNameAndAvatar(comment.replyId).then(res => {
+        // console.log(res.avatarUrl);
+        comment.replyName = res.uname;
+        comment.replyAvatarUrl = res.avatarUrl;
+      });
+
+      await this.getUserNameAndAvatar(comment.respondentId).then(res => {
+        comment.responseName = res.uname;
+      });
+    },
+    //设置要添加的子评论的值
+    setComment(comment, dynamicIndex, commentIndex) {
+      for (let i = 0; i < this.dynamics[dynamicIndex].comments.length; i++) {
+        this.dynamics[dynamicIndex].comments[i].responseIdInput =
+          comment.replyId;
+        this.dynamics[dynamicIndex].comments[i].replyNameInput =
+          comment.replyName;
+        //显示输入框
+        this.dynamics[dynamicIndex].comments[i].showCommentInput = false;
+        if (i == commentIndex) {
+          this.dynamics[dynamicIndex].comments[i].showCommentInput = true;
+        }
+      }
+
+      // console.log(pid);
+      // console.log(dynamicId);
+      // console.log(replyId);
+      // console.log(respondentId);
+      // console.log(commentIndex);
+    },
+
+    //新增评论
+    addComment(pid, dynamicId, replyId, respondentId, index) {
+      if (
+        this.dynamics[index].commentContent == "" ||
+        this.dynamics[index].commentContent == null ||
+        this.dynamics[index].commentContent == undefined
+      ) {
+        this.dynamics[index].commentRules = [v => !!v || "评论内容不能为空!"];
+        this.dynamics[index].valid = false;
+      } else {
+        this.dynamics[index].valid = true;
+        this.dynamics[index].commentRules = [true];
+        this.pushComment(
+          pid,
+          dynamicId,
+          replyId,
+          respondentId,
+          this.dynamics[index].commentContent
+        ).then(res => {
+          this.dynamics[index].commentContent = "";
+
+          var comment = Object.assign({}, res);
+          this.dealOneComment(comment).then(() => {
+            this.dynamics[index].comments.unshift(comment);
+          });
+        });
+      }
+    },
+    async pushComment(pid, dynamicId, replyId, respondentId, commentContent) {
+      var comment = {};
+      comment.pid = pid;
+      comment.dynamicId = dynamicId;
+      comment.replyId = replyId;
+      comment.respondentId = respondentId;
+      comment.commentContent = commentContent;
+      comment = Object.assign({}, comment);
+
+      await this.$http({
+        method: "post",
+        url: "/comment/add",
+        data: comment
+      })
+        .then(res => {
+          this.snackbar = true;
+          this.snackbarText = "评论成功";
+          comment = res.data;
+          console.log(comment);
+        })
+        .catch(() => {
+          this.snackbar = true;
+          this.snackbarText = "评论失败";
+          comment = null;
+        });
+      return comment;
+    },
+    //获取更多子评论
+    async getMoreSonComment(index, i) {
+      this.dynamics[index].comments[i].page += 1;
+      this.commentRequest.page = this.dynamics[index].comments[i].page;
+      this.commentRequest.rows = 3;
+      for (let i in this.dynamics[index].comments) {
+        await this.dealCommentData(
+          index,
+          this.dynamics[index].comments[i].id
+        ).then(res => {
+          var tempList = [];
+          for (let j in this.dynamics[index].comments[i].sonComments) {
+            tempList.push(this.dynamics[index].comments[i].sonComments[j]);
+          }
+          for (let j in res.commentList) {
+            tempList.push(res.commentList[j]);
+          }
+          this.dynamics[index].comments[i].sonComments = tempList;
+          this.dynamics[index].comments[i].sonCommentTotal = res.commentTotal;
+
+          this.dynamics[index] = Object.assign({}, this.dynamics[index]);
+          this.$set(this.dynamics, index, this.dynamics[index]);
+          // console.log(this.dynamics[index].comments[i]);
+        });
+      }
+    },
+
+    //显示评论框
+    openComment(index, pid, isMore) {
+      this.dynamics[index].show_input = !this.dynamics[index].show_input;
+      if (this.dynamics[index].show_input) {
+        this.showComment(index, pid, isMore);
+      }
+    },
+    showComment(index, pid, isMore) {
+      //点击了更多评论按钮
+      if (isMore) {
+        this.dynamics[index].show_input = true;
+        this.dynamics[index].commentPage += 1;
+        this.commentRequest.page = this.dynamics[index].commentPage;
+        this.commentRequest.rows = 5;
+      } else {
+        this.dynamics[index].comments = null;
+        this.dynamics[index].valid = true;
+        this.dynamics[index].commentRules = [];
+
+        this.dynamics[index].commentPage = 1;
+        this.dynamics[index].rows = 5;
+        this.commentRequest.rows = this.dynamics[index].rows;
+        this.commentRequest.page = 1;
+      }
+      if (this.dynamics[index].show_input) {
+        this.reDealCommentData(index, pid);
+      }
+    },
+    async reDealCommentData(index, pid) {
+      await this.dealCommentData(index, pid).then(res => {
+        var tempList = [];
+        for (let j in this.dynamics[index].comments) {
+          tempList.push(this.dynamics[index].comments[j]);
+        }
+        for (let j in res.commentList) {
+          tempList.push(res.commentList[j]);
+        }
+        this.dynamics[index].comments = tempList;
         this.dynamics[index].commentTotal = res.commentTotal;
 
         this.dynamics[index] = Object.assign({}, this.dynamics[index]);
         this.$set(this.dynamics, index, this.dynamics[index]);
       });
-      for (let i in this.dynamics[index].comments) {
+      for (
+        let i =
+          (this.dynamics[index].commentPage - 1) * this.dynamics[index].rows;
+        i < this.dynamics[index].comments.length;
+        i++
+      ) {
+        this.dynamics[index].comments[i].page = 1;
+        this.commentRequest.rows = 3;
         await this.dealCommentData(
           index,
-          this.dynamics[index].comments[i].id,
-          this.dynamics[index].comments[i].page,
-          3,
-          this.dynamics[index].comments[i].sonComments
+          this.dynamics[index].comments[i].id
         ).then(res => {
-          this.dynamics[index].comments[i].sonComments = res.commentList;
+          var tempList = [];
+          for (let j in this.dynamics[index].comments[i].sonComments) {
+            tempList.push(this.dynamics[index].comments[i].sonComments[j]);
+          }
+          for (let j in res.commentList) {
+            tempList.push(res.commentList[j]);
+          }
+          this.dynamics[index].comments[i].sonComments = tempList;
           this.dynamics[index].comments[i].sonCommentTotal = res.commentTotal;
 
           this.dynamics[index] = Object.assign({}, this.dynamics[index]);
           this.$set(this.dynamics, index, this.dynamics[index]);
-          console.log(this.dynamics[index].comments[i]);
+          // console.log(this.dynamics[index].comments[i]);
         });
       }
     },
-    //显示评论框
-    async showComment(index, pid) {
-      this.dynamics[index].show_input = !this.dynamics[index].show_input;
-      this.commentRequest.page = 1;
+    async dealCommentData(index, pid) {
+      // console.log(this.commentRequest);
 
-      if (this.dynamics[index].show_input) {
-        this.dynamics[index].comments = null;
-        await this.dealCommentData(
-          index,
-          pid,
-          this.commentRequest.page,
-          this.commentRequest.rows,
-          this.dynamics[index].comments
-        ).then(res => {
-          this.dynamics[index].comments = res.commentList;
-          this.dynamics[index].commentTotal = res.commentTotal;
-
-          this.dynamics[index] = Object.assign({}, this.dynamics[index]);
-          this.$set(this.dynamics, index, this.dynamics[index]);
-        });
-        // console.log(this.dynamics[index].comments);
-        for (let i in this.dynamics[index].comments) {
-          await this.dealCommentData(
-            index,
-            this.dynamics[index].comments[i].id,
-            this.dynamics[index].comments[i].page,
-            3,
-            this.dynamics[index].comments[i].sonComments
-          ).then(res => {
-            this.dynamics[index].comments[i].sonComments = res.commentList;
-            this.dynamics[index].comments[i].sonCommentTotal = res.commentTotal;
-
-            this.dynamics[index] = Object.assign({}, this.dynamics[index]);
-            this.$set(this.dynamics, index, this.dynamics[index]);
-            console.log(this.dynamics[index].comments[i]);
-          });
-        }
-      }
-    },
-
-    async dealCommentData(index, pid, page, rows, oldComments) {
       // console.log(oldComments);
       var commentList = [];
+      this.commentTotal = 0;
+      this.commentList = {};
       await this.getComment(this.dynamics[index].id, pid).then(async resp => {
         resp = Object.assign({}, resp);
         this.commentTotal = resp.total;
 
-        if (oldComments != null || oldComments != undefined) {
-          for (let i in oldComments) {
-            commentList.push(oldComments[i]);
-          }
-        }
-
         for (let i = 0; i < resp.items.length; i++) {
-          resp.items[i].page = 1;
+          resp.items[i].showCommentInput = false;
           commentList.push(resp.items[i]);
         }
         this.commentList = commentList;
         this.commentList = Object.assign({}, this.commentList);
 
-        for (let i = (page - 1) * rows; i < commentList.length; i++) {
+        for (let i = 0; i < commentList.length; i++) {
           await this.getUserNameAndAvatar(this.commentList[i].replyId).then(
             res => {
+              // console.log(res.avatarUrl);
+
               this.commentList[i].replyName = res.uname;
               this.commentList[i].replyAvatarUrl = res.avatarUrl;
               this.$set(this.commentList, i, this.commentList[i]);
@@ -424,10 +723,12 @@ export default {
           });
         }
       });
-
       var commentInfo = {};
       commentInfo.commentTotal = this.commentTotal;
+      // console.log(this.commentTotal);
+
       commentInfo.commentList = this.commentList;
+
       return commentInfo;
     },
     //获取评论
@@ -475,6 +776,7 @@ export default {
           this.dynamics[i].btnShow = false;
           this.dynamics[i].fold = false;
           this.dynamics[i].show_input = false;
+          this.dynamics[i].valid = true;
           let user = {};
           // 根据用户id查询头像和用户名
           this.getUserNameAndAvatar(this.dynamics[i].uid).then(res => {
@@ -693,7 +995,7 @@ export default {
     },
     //当由数据响应时
     responseCallback(fram) {
-      this.dynamicUpdate = !this.dynamicUpdate;
+      // this.dynamicUpdate = !this.dynamicUpdate;
       console.log("返回" + fram.body);
     },
     //连接rabbitmq

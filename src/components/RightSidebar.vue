@@ -13,7 +13,9 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="title">我的音乐</v-list-item-title>
-          <v-list-item-subtitle>{{$store.state.userInfo.uname}}</v-list-item-subtitle>
+          <v-list-item-subtitle>{{
+            $store.state.userInfo.uname
+          }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
@@ -23,7 +25,13 @@
           <v-row justify="center" no-gutters>
             <v-col cols="7">
               <v-img
-                :src="$store.state.music.musicCoverUrl == null ? (musicItems[0].musicCoverUrl == null ? 'https://picsum.photos/510/300?random' : musicItems[0].musicCoverUrl ) : $store.state.music.musicCoverUrl"
+                :src="
+                  $store.state.music.musicCoverUrl == null
+                    ? musicItems[0].musicCoverUrl == null
+                      ? 'https://picsum.photos/510/300?random'
+                      : musicItems[0].musicCoverUrl
+                    : $store.state.music.musicCoverUrl
+                "
                 height="210"
                 width="210"
                 aspect-ratio="1"
@@ -35,8 +43,16 @@
               <v-list class="pa-0">
                 <v-list-item style="text-align:center" two-line>
                   <v-list-item-content class="pa-0">
-                    <v-list-item-title>{{$store.state.music.musicName == null ? musicItems[0].musicName : $store.state.music.musicName}}</v-list-item-title>
-                    <v-list-item-subtitle>{{$store.state.music.musicAuthor == null ? musicItems[0].musicAuthor : $store.state.music.musicAuthor}}</v-list-item-subtitle>
+                    <v-list-item-title>{{
+                      $store.state.music.musicName == null
+                        ? musicItems[0].musicName
+                        : $store.state.music.musicName
+                    }}</v-list-item-title>
+                    <v-list-item-subtitle>{{
+                      $store.state.music.musicAuthor == null
+                        ? musicItems[0].musicAuthor
+                        : $store.state.music.musicAuthor
+                    }}</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -44,7 +60,9 @@
           </v-row>
           <v-row no-gutters>
             <v-col cols="2" style="text-align:right">
-              <div class="overline mt-2">{{realFormatSecond(audio.currentTime)}}</div>
+              <div class="overline mt-2">
+                {{ realFormatSecond(audio.currentTime) }}
+              </div>
             </v-col>
             <v-col cols="8">
               <v-slider
@@ -57,7 +75,9 @@
               ></v-slider>
             </v-col>
             <v-col cols="2">
-              <div class="overline mt-2">{{realFormatSecond(audio.maxTime)}}</div>
+              <div class="overline mt-2">
+                {{ realFormatSecond(audio.maxTime) }}
+              </div>
             </v-col>
           </v-row>
           <v-row justify="center">
@@ -69,7 +89,9 @@
             </v-col>
             <v-col class="pa-0" style="text-align:center" cols="2">
               <v-btn icon @click="audio.playing ? pause() : play()">
-                <v-icon>{{ this.$store.state.playing ? "mdi-pause" : "mdi-play" }}</v-icon>
+                <v-icon>{{
+                  this.$store.state.playing ? "mdi-pause" : "mdi-play"
+                }}</v-icon>
               </v-btn>
             </v-col>
             <v-col class="pa-0" style="text-align:center" cols="2">
@@ -79,7 +101,9 @@
             </v-col>
             <v-col class="pa-0" style="text-align:center" cols="2">
               <v-btn @click.stop="favor($store.state.music)" icon>
-                <v-icon :color="$store.state.music.favor ? 'red' : 'gray'">mdi-heart</v-icon>
+                <v-icon :color="$store.state.music.favor ? 'red' : 'gray'"
+                  >mdi-heart</v-icon
+                >
               </v-btn>
             </v-col>
           </v-row>
@@ -88,20 +112,42 @@
             <v-card flat style="overflow-y:auto" width="360" height="186">
               <v-list class="pa-0 ma-0" dense two-line>
                 <template v-for="(item, index) in musicItems">
-                  <v-divider v-if="index!=0 && index!=musicItems.length" :key="index" inset></v-divider>
+                  <v-divider
+                    v-if="index != 0 && index != musicItems.length"
+                    :key="index"
+                    inset
+                  ></v-divider>
 
-                  <v-list-item @click="initialMusic(item,index)" link dense :key="item.id">
-                    <v-list-item-avatar style="border-radius:4px" tile class="my-0">
+                  <v-list-item
+                    @click="initialMusic(item, index)"
+                    link
+                    dense
+                    :key="item.id"
+                  >
+                    <v-list-item-avatar
+                      style="border-radius:4px"
+                      tile
+                      class="my-0"
+                    >
                       <v-img :src="item.musicCoverUrl"></v-img>
                     </v-list-item-avatar>
                     <v-list-item-content style="height:40px" class="pa-0">
-                      <v-list-item-title v-html="item.musicName"></v-list-item-title>
-                      <v-list-item-subtitle v-html="item.musicAuthor"></v-list-item-subtitle>
+                      <v-list-item-title
+                        v-html="item.musicName"
+                      ></v-list-item-title>
+                      <v-list-item-subtitle
+                        v-html="item.musicAuthor"
+                      ></v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
                 </template>
                 <div v-if="totalPage != 0" class="text-center">
-                  <v-pagination circle v-model="currentPage" :length="totalPage" :total-visible="7"></v-pagination>
+                  <v-pagination
+                    circle
+                    v-model="currentPage"
+                    :length="totalPage"
+                    :total-visible="7"
+                  ></v-pagination>
                 </div>
               </v-list>
             </v-card>
@@ -115,7 +161,11 @@
         @ended="onEnded()"
         @timeupdate="onTimeupdate"
         @loadedmetadata="onLoadedmetadata"
-        :src="this.$store.state.music.musicUrl == null ? audioSrc : this.$store.state.music.musicUrl"
+        :src="
+          this.$store.state.music.musicUrl == null
+            ? audioSrc
+            : this.$store.state.music.musicUrl
+        "
         v-show="false"
         controls="controls"
       ></audio>

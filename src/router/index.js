@@ -12,10 +12,10 @@ function route(path, file, name, children) {
     component: () => import("../views" + file)
   };
 }
-const originalPush = VueRouter.prototype.push
+const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
-  return originalPush.call(this, location).catch(err => err)
-}
+  return originalPush.call(this, location).catch(err => err);
+};
 
 const routes = [
   route("/login", "/index/Login", "Login"),
@@ -124,11 +124,7 @@ const routes = [
       ),
       route("/admin/user", "/admin/user/UserList", "User"),
       route("/admin/user/list", "/admin/user/UserList", "UserList"),
-      route(
-        "/admin/user/delete",
-        "/admin/user/UserDelete",
-        "UserDelete"
-      )
+      route("/admin/user/delete", "/admin/user/UserDelete", "UserDelete")
     ]
   }
 ];

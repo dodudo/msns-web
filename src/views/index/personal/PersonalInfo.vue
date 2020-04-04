@@ -47,7 +47,9 @@
           <h4 style="line-height:40px">我的信息</h4>
         </v-card>
 
-        <v-btn :color="edit ? 'error':'info'" @click="edit=!edit" small>{{edit? '编辑' : '退出编辑'}}</v-btn>
+        <v-btn :color="edit ? 'error' : 'info'" @click="edit = !edit" small>{{
+          edit ? "编辑" : "退出编辑"
+        }}</v-btn>
       </v-row>
       <v-divider></v-divider>
 
@@ -121,7 +123,13 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field :disabled="edit" v-model="date" label="生日" readonly v-on="on"></v-text-field>
+              <v-text-field
+                :disabled="edit"
+                v-model="date"
+                label="生日"
+                readonly
+                v-on="on"
+              ></v-text-field>
             </template>
             <v-date-picker
               ref="picker"
@@ -148,7 +156,9 @@
     </v-row>
     <v-form ref="form" v-model="validate2">
       <v-row align="center">
-        <v-col cols="1" class="ml-6 mb-6" style="text-align:right">旧密码:</v-col>
+        <v-col cols="1" class="ml-6 mb-6" style="text-align:right"
+          >旧密码:</v-col
+        >
         <v-col class="py-0" cols="4">
           <v-text-field
             solo
@@ -167,7 +177,9 @@
         </v-col>
       </v-row>
       <v-row align="center">
-        <v-col cols="1" class="ml-6 mb-6" style="text-align:right">新密码:</v-col>
+        <v-col cols="1" class="ml-6 mb-6" style="text-align:right"
+          >新密码:</v-col
+        >
         <v-col class="py-0" cols="4">
           <v-text-field
             solo
@@ -186,7 +198,9 @@
         </v-col>
       </v-row>
       <v-row align="center">
-        <v-col cols="1" class="ml-6 mb-6 caption" style="text-align:right">确认新密码:</v-col>
+        <v-col cols="1" class="ml-6 mb-6 caption" style="text-align:right"
+          >确认新密码:</v-col
+        >
         <v-col class="py-0" cols="4">
           <v-text-field
             solo
@@ -209,7 +223,9 @@
       </v-row>
       <v-row justify="center" align="center">
         <v-col cols="7">
-          <v-btn color="red" :disabled="!valid" width="80" @click="submit()">保存</v-btn>
+          <v-btn color="red" :disabled="!valid" width="80" @click="submit()"
+            >保存</v-btn
+          >
         </v-col>
       </v-row>
     </v-form>
@@ -338,7 +354,6 @@ export default {
           that.avatarUrl = e.target.result;
           that.showChangeAvatar = true;
           console.log(that.avatarUrl);
-          
         };
       }
       img_input.value = null;

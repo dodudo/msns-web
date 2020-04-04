@@ -11,11 +11,15 @@
     >
       <v-avatar size="80">
         <img
-          :src="userInfo.avatarUrl == null ? require('../assets/default_avatar.jpg') : userInfo.avatarUrl"
+          :src="
+            userInfo.avatarUrl == null
+              ? require('../assets/default_avatar.jpg')
+              : userInfo.avatarUrl
+          "
           alt="John"
         />
       </v-avatar>
-      <v-card class="title" flat>{{userInfo.uname}}</v-card>
+      <v-card class="title" flat>{{ userInfo.uname }}</v-card>
       <v-row justify="center">
         <v-col
           :style="{ color: color1, cursor: pointer1 }"
@@ -27,7 +31,7 @@
           @click="toAttention()"
         >
           <div>关注</div>
-          <div>{{userCountInfo.favorCount}}</div>
+          <div>{{ userCountInfo.favorCount }}</div>
         </v-col>
         <v-col
           :style="{ color: color2, cursor: pointer2 }"
@@ -38,7 +42,7 @@
           @click="toFan()"
         >
           <div>粉丝</div>
-          <div>{{userCountInfo.fanCount}}</div>
+          <div>{{ userCountInfo.fanCount }}</div>
         </v-col>
         <v-col
           :style="{ color: color3, cursor: pointer3 }"
@@ -49,7 +53,7 @@
           @click="toDynamic()"
         >
           <div>动态</div>
-          <div>{{userCountInfo.dynamicCount}}</div>
+          <div>{{ userCountInfo.dynamicCount }}</div>
         </v-col>
       </v-row>
       <v-list class="pa-0">

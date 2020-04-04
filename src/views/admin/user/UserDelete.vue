@@ -23,19 +23,26 @@
         </v-toolbar>
       </template>
       <template v-slot:item.status="{ item }">
-        <v-switch inset @click.stop="changeStatus(item)" v-model="item.statusBoolean" class="mx-2"></v-switch>
+        <v-switch
+          inset
+          @click.stop="changeStatus(item)"
+          v-model="item.statusBoolean"
+          class="mx-2"
+        ></v-switch>
       </template>
       <template v-slot:item.birthday="{ item }">
-        <v-card class="content" color="rgba(0,0,0,0)" flat>{{ formatDate(new Date(item.birthday)) }}</v-card>
+        <v-card class="content" color="rgba(0,0,0,0)" flat>{{
+          formatDate(new Date(item.birthday))
+        }}</v-card>
       </template>
       <template v-slot:item.avatarUrl="{ item }">
         <v-avatar width="40" height="40">
           <img
             :src="
-            item.avatarUrl == null
-              ? require(`../../../assets/defaultCover.jpg`)
-              : item.avatarUrl
-          "
+              item.avatarUrl == null
+                ? require(`../../../assets/defaultCover.jpg`)
+                : item.avatarUrl
+            "
             :alt="item.uname"
           />
         </v-avatar>

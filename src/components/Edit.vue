@@ -31,13 +31,19 @@
 
       <v-row class="ma-0" align="center">
         <v-col cols="1" class="py-0 px-1">
-          <v-btn @click="showEmoji()" small fab text style="font-size:20px;">😀</v-btn>
+          <v-btn @click="showEmoji()" small fab text style="font-size:20px;"
+            >😀</v-btn
+          >
         </v-col>
         <v-col cols="1" class="py-0 px-1">
-          <v-btn @click="showImg()" small fab text style="font-size:20px;">🖼️</v-btn>
+          <v-btn @click="showImg()" small fab text style="font-size:20px;"
+            >🖼️</v-btn
+          >
         </v-col>
         <v-col cols="1" class="py-0 px-1">
-          <v-btn @click="openDialog()" small fab text style="font-size:20px;">🎵</v-btn>
+          <v-btn @click="openDialog()" small fab text style="font-size:20px;"
+            >🎵</v-btn
+          >
         </v-col>
         <v-col class="pa-0">
           <v-card flat>
@@ -50,18 +56,31 @@
               @click:close="delMusic()"
             >
               <v-icon left>mdi-music-note-eighth</v-icon>
-              {{selectedMusic.musicName}} - {{selectedMusic.musicAuthor}}
+              {{ selectedMusic.musicName }} - {{ selectedMusic.musicAuthor }}
             </v-chip>
           </v-card>
         </v-col>
         <v-col cols="1" class="d-flex justify-end py-0 pr-4">
-          <v-btn small color="red" @click="publish()" dark style="font-size:14px;">发布</v-btn>
+          <v-btn
+            small
+            color="red"
+            @click="publish()"
+            dark
+            style="font-size:14px;"
+            >发布</v-btn
+          >
         </v-col>
       </v-row>
     </v-form>
     <v-row id="inputPanel" class="ma-0 mt-1">
       <!-- 表情输入框 -->
-      <v-card id="emoji_card " v-if="show_emoji" height="100" style="overflow-y:auto" class="mx-1">
+      <v-card
+        id="emoji_card "
+        v-if="show_emoji"
+        height="100"
+        style="overflow-y:auto"
+        class="mx-1"
+      >
         <v-btn
           v-for="(emoji, index) in emojis"
           :key="index"
@@ -70,7 +89,8 @@
           text
           @click="addEmoji(index)"
           style="font-size:20px;"
-        >{{ emoji }}</v-btn>
+          >{{ emoji }}</v-btn
+        >
       </v-card>
       <!-- 图片上传框 -->
       <v-card
@@ -79,9 +99,18 @@
         width="700"
         height="100"
       >
-        <v-hover v-slot:default="{ hover }" v-for="(imgUrl, index) in imgUrls" :key="index">
+        <v-hover
+          v-slot:default="{ hover }"
+          v-for="(imgUrl, index) in imgUrls"
+          :key="index"
+        >
           <v-card class="mr-1" height="80" width="80px">
-            <v-img aspect-ratio="1" max-width="80" max-height="80" :src="imgUrl"></v-img>
+            <v-img
+              aspect-ratio="1"
+              max-width="80"
+              max-height="80"
+              :src="imgUrl"
+            ></v-img>
 
             <v-overlay
               v-if="hover"
@@ -91,7 +120,13 @@
               absolute
               value="true"
             >
-              <v-btn height="24" @click="delImg(index)" width="24" class="del-img" icon>
+              <v-btn
+                height="24"
+                @click="delImg(index)"
+                width="24"
+                class="del-img"
+                icon
+              >
                 <v-icon color="#000">mdi-close-box</v-icon>
               </v-btn>
             </v-overlay>
@@ -121,7 +156,9 @@
       <div class="text-center">
         <v-dialog v-model="dialog" width="500">
           <v-card>
-            <v-card-title class="headline grey lighten-2" primary-title>选择音乐</v-card-title>
+            <v-card-title class="headline grey lighten-2" primary-title
+              >选择音乐</v-card-title
+            >
             <v-row>
               <v-col cols="8" class="ml-3">
                 <v-text-field
@@ -142,20 +179,42 @@
             <v-card flat style="overflow-y:auto" height="500">
               <v-list class="pa-0 ma-0" dense two-line>
                 <template v-for="(item, index) in musicItems">
-                  <v-divider v-if="index!=0 && index!=musicItems.length" :key="index" inset></v-divider>
+                  <v-divider
+                    v-if="index != 0 && index != musicItems.length"
+                    :key="index"
+                    inset
+                  ></v-divider>
 
-                  <v-list-item @click="selectMusic(item)" link dense :key="item.id">
-                    <v-list-item-avatar style="border-radius:4px" tile class="my-0">
+                  <v-list-item
+                    @click="selectMusic(item)"
+                    link
+                    dense
+                    :key="item.id"
+                  >
+                    <v-list-item-avatar
+                      style="border-radius:4px"
+                      tile
+                      class="my-0"
+                    >
                       <v-img :src="item.musicCoverUrl"></v-img>
                     </v-list-item-avatar>
                     <v-list-item-content style="height:40px" class="pa-0">
-                      <v-list-item-title v-html="item.musicName"></v-list-item-title>
-                      <v-list-item-subtitle v-html="item.musicAuthor"></v-list-item-subtitle>
+                      <v-list-item-title
+                        v-html="item.musicName"
+                      ></v-list-item-title>
+                      <v-list-item-subtitle
+                        v-html="item.musicAuthor"
+                      ></v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
                 </template>
                 <div v-if="totalPage != 0" class="text-center">
-                  <v-pagination circle v-model="currentPage" :length="totalPage" :total-visible="7"></v-pagination>
+                  <v-pagination
+                    circle
+                    v-model="currentPage"
+                    :length="totalPage"
+                    :total-visible="7"
+                  ></v-pagination>
                 </div>
               </v-list>
             </v-card>
@@ -394,19 +453,24 @@ export default {
      * 发表动态
      */
     publish() {
-      if (this.dynamic_text == null || this.dynamic_text == "") {
+      if (
+        this.dynamic_text == null ||
+        this.dynamic_text == "" ||
+        this.dynamic_text == undefined
+      ) {
         this.contenRule = [v => !!v || "内容不能为空！"];
+        this.$refs.dynamic_form.validate();
       } else {
         this.contenRule = [true];
-      }
-      if (this.$refs.dynamic_form.validate()) {
-        // console.log("hhh");
-        if (this.imgFiles.length <= 0) {
-          this.addDynamic();
-        } else {
-          this.uploadImgs().then(() => {
+        if (this.$refs.dynamic_form.validate()) {
+          // console.log("hhh");
+          if (this.imgFiles.length <= 0) {
             this.addDynamic();
-          });
+          } else {
+            this.uploadImgs().then(() => {
+              this.addDynamic();
+            });
+          }
         }
       }
     },

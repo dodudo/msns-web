@@ -10,12 +10,15 @@
           <v-row align="center" class="px-4">
             <v-col cols="1">
               <v-avatar size="80">
-                <img :src="$store.state.user.avatarUrl" :alt="$store.state.user.uname" />
+                <img
+                  :src="$store.state.user.avatarUrl"
+                  :alt="$store.state.user.uname"
+                />
               </v-avatar>
             </v-col>
             <v-col cols="9" class="ml-4">
               <v-row align="center">
-                <h3 class="ml-3">{{$store.state.user.uname}}</h3>
+                <h3 class="ml-3">{{ $store.state.user.uname }}</h3>
               </v-row>
               <v-row justify="center">
                 <v-text-field

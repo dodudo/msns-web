@@ -1,15 +1,27 @@
 <template>
   <v-card height style="overflow-y:auto" flat class="mt-2 pa-2">
-    <v-card flat class="mx-auto pa-0" width="700" v-show="peopleItems[0]==undefined">
+    <v-card
+      flat
+      class="mx-auto pa-0"
+      width="700"
+      v-show="peopleItems[0] == undefined"
+    >
       <v-card-text style="text-align:center">没有数据呢</v-card-text>
     </v-card>
     <v-list class="pa-0 ma-0" two-line>
       <template v-for="(item, index) in peopleItems">
-        <v-divider v-if="index!=0 && index!=peopleItems.length" :key="item.uid"></v-divider>
+        <v-divider
+          v-if="index != 0 && index != peopleItems.length"
+          :key="item.uid"
+        ></v-divider>
         <v-list-item class="my-3" :key="index">
           <v-list-item-avatar size="60" class="my-0">
             <v-img
-              :src="item.avatarUrl == null ? require('../assets/default_avatar.jpg') : item.avatarUrl"
+              :src="
+                item.avatarUrl == null
+                  ? require('../assets/default_avatar.jpg')
+                  : item.avatarUrl
+              "
             ></v-img>
           </v-list-item-avatar>
           <v-list-item-content>
@@ -17,13 +29,19 @@
             <v-list-item-subtitle>{{ item.description }}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-btn @click.stop="favor(index)">{{item.favor ? "已关注" : "关注"}}</v-btn>
+            <v-btn @click.stop="favor(index)">{{
+              item.favor ? "已关注" : "关注"
+            }}</v-btn>
           </v-list-item-action>
         </v-list-item>
       </template>
     </v-list>
-    <div v-if="totalPage > 1 " class="text-center">
-      <v-pagination v-model="currentPage" :length="totalPage" :total-visible="7"></v-pagination>
+    <div v-if="totalPage > 1" class="text-center">
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPage"
+        :total-visible="7"
+      ></v-pagination>
     </div>
   </v-card>
 </template>

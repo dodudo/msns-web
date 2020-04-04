@@ -1,6 +1,11 @@
 <template>
   <v-card class="ml-2" style="margin-top:78px" flat width="1114">
-    <v-carousel cycle height="200" hide-delimiter-background show-arrows-on-hover>
+    <v-carousel
+      cycle
+      height="200"
+      hide-delimiter-background
+      show-arrows-on-hover
+    >
       <v-carousel-item
         :src="require(`../../assets/${slide.img}`)"
         v-for="(slide, i) in sliders"
@@ -37,32 +42,51 @@
     <v-tabs-items v-model="tab">
       <v-tab-item v-for="i in classItems" :key="i">
         <v-card flat max-height="380" style="overflow-y:auto">
-          <v-card flat class="mx-auto pa-0" width="700" v-show="musicItems[0]==undefined">
+          <v-card
+            flat
+            class="mx-auto pa-0"
+            width="700"
+            v-show="musicItems[0] == undefined"
+          >
             <v-card-text style="text-align:center">没有音乐呢</v-card-text>
           </v-card>
           <v-list class="pa-0 ma-0" dense two-line>
             <template v-for="(item, index) in musicItems">
-              <v-divider v-if="index!=0 && index!=musicItems.length" :key="index" inset></v-divider>
+              <v-divider
+                v-if="index != 0 && index != musicItems.length"
+                :key="index"
+                inset
+              ></v-divider>
 
               <v-list-item @click="playMusic(item)" dense :key="item.id" link>
                 <v-list-item-avatar style="border-radius:4px" tile class="my-0">
                   <v-img :src="item.musicCoverUrl"></v-img>
                 </v-list-item-avatar>
                 <v-list-item-content style="height:40px" class="pa-0 mr-12">
-                  <v-list-item-title v-html="item.musicName"></v-list-item-title>
+                  <v-list-item-title
+                    v-html="item.musicName"
+                  ></v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content style="height:40px" class="pa-0">
-                  <v-list-item-subtitle v-html="item.musicLength"></v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    v-html="item.musicLength"
+                  ></v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-content style="height:40px" class="pa-0">
-                  <v-list-item-title v-html="item.musicAuthor"></v-list-item-title>
+                  <v-list-item-title
+                    v-html="item.musicAuthor"
+                  ></v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content style="height:40px" class="pa-0">
-                  <v-list-item-subtitle v-html="item.musicAlbum"></v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    v-html="item.musicAlbum"
+                  ></v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-btn @click.stop="favor(index)" icon>
-                    <v-icon :color="item.favor ? 'red' : 'gray'">mdi-heart</v-icon>
+                    <v-icon :color="item.favor ? 'red' : 'gray'"
+                      >mdi-heart</v-icon
+                    >
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -70,7 +94,11 @@
           </v-list>
         </v-card>
         <div v-if="totalPage != 0" class="text-center">
-          <v-pagination v-model="currentPage" :length="totalPage" :total-visible="7"></v-pagination>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPage"
+            :total-visible="7"
+          ></v-pagination>
         </div>
       </v-tab-item>
     </v-tabs-items>

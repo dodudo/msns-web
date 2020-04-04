@@ -2,7 +2,7 @@
   <div>
     <!-- 小号左侧边栏，当页面缩小时可展开 -->
     <v-navigation-drawer
-      v-if="userInfo.id!=null"
+      v-if="userInfo.id != null"
       v-model="min_leftbar"
       height="630px"
       style="top:60px;z-index:999"
@@ -58,18 +58,36 @@
       scroll-target
     >
       <template v-slot:img="{ props }">
-        <v-img v-bind="props" gradient="to top right, rgba(255,0,0,1), rgba(255,0,0,0)"></v-img>
+        <v-img
+          v-bind="props"
+          gradient="to top right, rgba(255,0,0,1), rgba(255,0,0,0)"
+        ></v-img>
       </template>
 
-      <a class="title" style="text-decoration: none;color:#fff" href="/index/main">
+      <a
+        class="title"
+        style="text-decoration: none;color:#fff"
+        href="/index/main"
+      >
         <v-toolbar-title>Music Social Site</v-toolbar-title>
       </a>
 
-      <v-app-bar-nav-icon v-show="!drawer" @click="min_leftbar = !min_leftbar" icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        v-show="!drawer"
+        @click="min_leftbar = !min_leftbar"
+        icon
+      ></v-app-bar-nav-icon>
 
       <v-row justify="center" align="center" class="mx-auto">
         <v-col align="center" class="pa-0" cols="6">
-          <v-text-field label="您想搜什么" clearable class="mt-6" dense outlined v-model="search"></v-text-field>
+          <v-text-field
+            label="您想搜什么"
+            clearable
+            class="mt-6"
+            dense
+            outlined
+            v-model="search"
+          ></v-text-field>
         </v-col>
         <v-col class="pa-0" cols="1">
           <v-btn @click="toSearch()" link icon>
@@ -80,16 +98,49 @@
 
       <v-btn v-show="drawer" @click="toIndex()" text large>首页</v-btn>
       <v-btn v-show="drawer" @click="toMusic()" text large>音乐</v-btn>
-      <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toDynamic()" text large>动态</v-btn>
-      <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toFavor()" text large>收藏</v-btn>
-      <v-btn v-if="userInfo.id!=null" v-show="drawer" @click="toMessage()" text large>
+      <v-btn
+        v-if="userInfo.id != null"
+        v-show="drawer"
+        @click="toDynamic()"
+        text
+        large
+        >动态</v-btn
+      >
+      <v-btn
+        v-if="userInfo.id != null"
+        v-show="drawer"
+        @click="toFavor()"
+        text
+        large
+        >收藏</v-btn
+      >
+      <v-btn
+        v-if="userInfo.id != null"
+        v-show="drawer"
+        @click="toMessage()"
+        text
+        large
+      >
         <v-badge color="pink" content="6">消息</v-badge>
       </v-btn>
       <span>
-        <v-btn @click="userInfo.id == null ? alertToLogin() : toPersonal()" class="mx-3" text icon>
-          <v-avatar style="position:relative" @mouseover="showCard()" @mouseleave="hideCard()">
+        <v-btn
+          @click="userInfo.id == null ? alertToLogin() : toPersonal()"
+          class="mx-3"
+          text
+          icon
+        >
+          <v-avatar
+            style="position:relative"
+            @mouseover="showCard()"
+            @mouseleave="hideCard()"
+          >
             <img
-              :src="userInfo.avatarUrl == null ? require('../assets/default_avatar.jpg') : userInfo.avatarUrl"
+              :src="
+                userInfo.avatarUrl == null
+                  ? require('../assets/default_avatar.jpg')
+                  : userInfo.avatarUrl
+              "
               alt="John"
             />
           </v-avatar>
@@ -136,7 +187,7 @@
           <v-avatar class="mt-6">
             <img :src="userInfo.avatarUrl" :alt="userInfo.uname" />
           </v-avatar>
-          <div>{{userInfo.uname}}</div>
+          <div>{{ userInfo.uname }}</div>
           <v-row justify="center">
             <v-col
               :style="{ color: color1, cursor: pointer1 }"
@@ -147,7 +198,7 @@
               @click="toAttention()"
             >
               <div>关注</div>
-              <div>{{userCountInfo.favorCount}}</div>
+              <div>{{ userCountInfo.favorCount }}</div>
             </v-col>
             <v-col
               :style="{ color: color2, cursor: pointer2 }"
@@ -167,7 +218,7 @@
               @click="toPersonalDynamic()"
             >
               <div>动态</div>
-              <div>{{userCountInfo.dynamicCount}}</div>
+              <div>{{ userCountInfo.dynamicCount }}</div>
             </v-col>
           </v-row>
           <v-list>
@@ -196,9 +247,13 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
 
-                      <v-btn color="green darken-1" text @click="dialog = false">抱歉，我点错了</v-btn>
+                      <v-btn color="green darken-1" text @click="dialog = false"
+                        >抱歉，我点错了</v-btn
+                      >
 
-                      <v-btn color="green darken-1" text @click="deleteCookie()">是的，我要退出</v-btn>
+                      <v-btn color="green darken-1" text @click="deleteCookie()"
+                        >是的，我要退出</v-btn
+                      >
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -210,7 +265,7 @@
 
       <v-btn
         class="ma-2"
-        @click="userInfo.id == null ? alertToLogin() : focusInput() "
+        @click="userInfo.id == null ? alertToLogin() : focusInput()"
         depressed
         color="#D50000"
       >

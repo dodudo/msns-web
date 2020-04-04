@@ -1,6 +1,11 @@
 <template>
   <v-card style="margin-top:78px" flat width="1114">
-    <News ref="news" v-on:newsIsShow="newsIsShow" v-bind:dynamicSearch="dynamicSearch" class="news"></News>
+    <News
+      ref="news"
+      v-on:newsIsShow="newsIsShow"
+      v-bind:dynamicSearch="dynamicSearch"
+      class="news"
+    ></News>
   </v-card>
 </template>
 <script>

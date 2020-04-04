@@ -24,7 +24,9 @@
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" dark class="mb-2" v-on="on">新增管理员</v-btn>
+              <v-btn color="primary" dark class="mb-2" v-on="on"
+                >新增管理员</v-btn
+              >
             </template>
             <v-card>
               <v-card-title>
@@ -47,7 +49,9 @@
                     <v-row>
                       <v-col class="pa-0" cols="12" sm="12" md="12">
                         <v-select
-                          :value="editedItem.sex==null ? '未知' : editedItem.sex"
+                          :value="
+                            editedItem.sex == null ? '未知' : editedItem.sex
+                          "
                           :items="sexs"
                           label="性别"
                         ></v-select>
@@ -91,7 +95,7 @@
                     <v-row>
                       <v-col class="pa-0" cols="12" sm="12" md="12">
                         <v-text-field
-                          :rules="[rules.required,rules.emailRule]"
+                          :rules="[rules.required, rules.emailRule]"
                           v-model="editedItem.email"
                           label="邮箱"
                         ></v-text-field>
@@ -101,7 +105,7 @@
                       <v-text-field
                         v-if="formTitle == '新增'"
                         v-model="editedItem.password"
-                        :rules="[rules.required,rules.passwordRule]"
+                        :rules="[rules.required, rules.passwordRule]"
                         label="密码"
                         required
                       ></v-text-field>
@@ -113,7 +117,7 @@
                         @keyup.native="testPassword()"
                         @blur="testPassword()"
                         v-model="repassword"
-                        :rules="[rules.required,rules.repasswordRule]"
+                        :rules="[rules.required, rules.repasswordRule]"
                         label="确认密码"
                         required
                       ></v-text-field>
@@ -123,7 +127,7 @@
                       <v-col cols="12" sm="6" md="4">
                         <v-switch
                           v-model="editedItem.statusBoolean"
-                          :value="editedItem.status=='1'? true: false"
+                          :value="editedItem.status == '1' ? true : false"
                           label="是否启用"
                         ></v-switch>
                       </v-col>
@@ -142,13 +146,22 @@
         </v-toolbar>
       </template>
       <template v-slot:item.status="{ item }">
-        <v-switch inset @click.stop="changeStatus(item)" v-model="item.statusBoolean" class="mx-2"></v-switch>
+        <v-switch
+          inset
+          @click.stop="changeStatus(item)"
+          v-model="item.statusBoolean"
+          class="mx-2"
+        ></v-switch>
       </template>
       <template v-slot:item.birthday="{ item }">
-        <v-card class="content" color="rgba(0,0,0,0)" flat>{{ formatDate(new Date(item.birthday)) }}</v-card>
+        <v-card class="content" color="rgba(0,0,0,0)" flat>{{
+          formatDate(new Date(item.birthday))
+        }}</v-card>
       </template>
       <template v-slot:item.action="{ item }">
-        <v-icon class="mr-2" @click="editItem(item)">mdi-circle-edit-outline</v-icon>
+        <v-icon class="mr-2" @click="editItem(item)"
+          >mdi-circle-edit-outline</v-icon
+        >
         <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
       </template>
     </v-data-table>
