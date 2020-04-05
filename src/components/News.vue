@@ -371,6 +371,7 @@
                 @click="
                   addComment(
                     null,
+                    null,
                     dynamic.id,
                     $store.state.userInfo.uid,
                     dynamic.uid,
@@ -443,7 +444,7 @@ export default {
       page: 1,
       rows: 5,
       sortBy: "commentDate",
-      desc: true,
+      desc: false,
       isAll: true
     },
     dynamicList: [],
@@ -479,6 +480,7 @@ export default {
         //验证成功，添加评论
         this.pushComment(
           this.dynamics[dynamicIndex].comments[commentIndex].id,
+          this.dynamics[dynamicIndex].comments[commentIndex].lidInput,
           this.dynamics[dynamicIndex].id,
           this.$store.state.userInfo.uid,
           this.dynamics[dynamicIndex].comments[commentIndex].responseIdInput,
@@ -494,9 +496,9 @@ export default {
 
           var comment = Object.assign({}, res);
           this.dealOneComment(comment).then(() => {
-            this.dynamics[dynamicIndex].comments[
-              commentIndex
-            ].sonComments.unshift(comment);
+            this.dynamics[dynamicIndex].comments[commentIndex].sonComments.push(
+              comment
+            );
           });
         });
       }
@@ -517,6 +519,7 @@ export default {
       for (let i = 0; i < this.dynamics[dynamicIndex].comments.length; i++) {
         this.dynamics[dynamicIndex].comments[i].responseIdInput =
           comment.replyId;
+        this.dynamics[dynamicIndex].comments[i].lidInput = comment.id;
         this.dynamics[dynamicIndex].comments[i].replyNameInput =
           comment.replyName;
         //显示输入框
@@ -534,11 +537,15 @@ export default {
     },
 
     //新增评论
-    addComment(pid, dynamicId, replyId, respondentId, index) {
+    addComment(pid, lid, dynamicId, replyId, respondentId, index) {
+      console.log(index);
+
+      console.log(this.dynamics[index]);
+
       if (
+        this.dynamics[index].commentContent == undefined ||
         this.dynamics[index].commentContent == "" ||
-        this.dynamics[index].commentContent == null ||
-        this.dynamics[index].commentContent == undefined
+        this.dynamics[index].commentContent == null
       ) {
         this.dynamics[index].commentRules = [v => !!v || "评论内容不能为空!"];
         this.dynamics[index].valid = false;
@@ -547,6 +554,7 @@ export default {
         this.dynamics[index].commentRules = [true];
         this.pushComment(
           pid,
+          null,
           dynamicId,
           replyId,
           respondentId,
@@ -556,14 +564,22 @@ export default {
 
           var comment = Object.assign({}, res);
           this.dealOneComment(comment).then(() => {
-            this.dynamics[index].comments.unshift(comment);
+            this.dynamics[index].comments.push(comment);
           });
         });
       }
     },
-    async pushComment(pid, dynamicId, replyId, respondentId, commentContent) {
+    async pushComment(
+      pid,
+      lid,
+      dynamicId,
+      replyId,
+      respondentId,
+      commentContent
+    ) {
       var comment = {};
       comment.pid = pid;
+      comment.lid = lid;
       comment.dynamicId = dynamicId;
       comment.replyId = replyId;
       comment.respondentId = respondentId;
@@ -777,6 +793,7 @@ export default {
           this.dynamics[i].fold = false;
           this.dynamics[i].show_input = false;
           this.dynamics[i].valid = true;
+          this.dynamics[i].commentContent = "";
           let user = {};
           // 根据用户id查询头像和用户名
           this.getUserNameAndAvatar(this.dynamics[i].uid).then(res => {
