@@ -1,7 +1,16 @@
 <template>
   <v-card flat>
-    <v-row>
-      <v-col class="ml-2" cols="2">我收到的赞</v-col>
+    <v-row justify="center">
+      <v-col class="ml-2" cols="2">
+        <v-card flat>我收到的赞</v-card>
+      </v-col>
+      <v-col></v-col>
+      <v-col cols="2">
+        <v-btn @click=" isRead(null, null)" text color="red">
+          全部已读
+          <v-icon color="red">mdi-broom</v-icon>
+        </v-btn>
+      </v-col>
     </v-row>
     <v-divider></v-divider>
     <v-row class="pb-4">
@@ -9,14 +18,22 @@
         <v-card class="text-center" flat v-if="likes == null">
           <h5 style="color:grey">还没有赞呢</h5>
         </v-card>
-        <v-list-item v-for="(like, index) in likes" :key="index">
-          <v-list-item-avatar>
+        <v-list-item v-for="(like, index) in likes" class="mb-2" :key="index">
+          <v-badge
+            class="mr-6"
+            :value="like.status == 1"
+            bordered
+            color="red"
+            dot
+            offset-x="8"
+            offset-y="14"
+          >
             <v-avatar>
               <v-img
                 :src="like.likerAvatarUrl == null ? require('../../../assets/default_avatar.jpg') : like.likerAvatarUrl"
               ></v-img>
             </v-avatar>
-          </v-list-item-avatar>
+          </v-badge>
           <v-list-item-content style="background-color:#F5F5F5" class="px-2">
             <v-list-item-title class="mx-4 d-flex justify-space-between">
               <v-card
@@ -33,7 +50,19 @@
                 style="color:#BDBDBD"
               >{{formatDate(like.likeDate)}}</v-card>
             </v-list-item-title>
-            <v-list-item-subtitle class="mx-4">{{like.likeDynamicContent}}</v-list-item-subtitle>
+            <v-row>
+              <v-col cols="11" class="py-0">
+                <v-list-item-subtitle class="mx-4">{{like.likeDynamicContent}}</v-list-item-subtitle>
+              </v-col>
+              <v-col cols="1" class="py-0">
+                <a
+                  v-if="like.status == 1"
+                  class="caption"
+                  style="line-height:22px;text-decoration:underline;color:red"
+                  @click="isRead(like.id,index)"
+                >已读</a>
+              </v-col>
+            </v-row>
           </v-list-item-content>
         </v-list-item>
         <div v-if="totalPage > 1" class="text-center">
@@ -67,10 +96,41 @@ export default {
     currentPage() {
       this.likeRequest.page = this.currentPage;
       this.dealLike();
+    },
+    "$store.state.unreadLikeCount"() {
+      this.dealLike();
     }
   },
   methods: {
     verify,
+    //已读
+    isRead(id, likeIndex) {
+      this.$http({
+        method: "get",
+        url: "/like/updateStateById",
+        params: {
+          ids: [id],
+          status: "2",
+          dynamicAuthorid: this.$store.state.userInfo.uid
+        },
+        paramsSerializer: params => {
+          return this.$qs.stringify(params, { indices: false });
+        }
+      }).then(() => {
+        if (likeIndex != null) {
+          this.likes[likeIndex].status = "2";
+          this.$store.dispatch(
+            "changeUnreadLikeCount",
+            (this.$store.state.unreadLikeCount -= 1)
+          );
+        } else {
+          this.$store.dispatch(
+            "changeUnreadLikeCount",
+            (this.$store.state.unreadLikeCount = 0)
+          );
+        }
+      });
+    },
     dealLike() {
       this.getLikes().then(res => {
         this.likes = res;

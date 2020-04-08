@@ -107,7 +107,7 @@ export default {
       if (confirm("您确定要删除吗？")) {
         this.$http({
           method: "get",
-          url: `/comment/updateStateById/${id}`,
+          url: `/comment/updateStateDeleteById/${id}`,
           params: { dynamicId: dynamicId }
         })
           .then(() => {

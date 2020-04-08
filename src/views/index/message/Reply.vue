@@ -1,29 +1,49 @@
 <template>
   <v-card flat>
-    <v-row>
-      <v-col class="ml-2" cols="2">回复我的</v-col>
+    <v-row justify="center">
+      <v-col class="ml-2" cols="2">
+        <v-card flat>回复我的</v-card>
+      </v-col>
+      <v-col></v-col>
+      <v-col cols="2">
+        <v-btn @click=" isRead(null, null)" text color="red">
+          全部已读
+          <v-icon color="red">mdi-broom</v-icon>
+        </v-btn>
+      </v-col>
     </v-row>
     <v-divider></v-divider>
     <v-row class="pa-0">
       <v-list class="mx-6" width="900" height="30%" three-line>
-        <v-card class="text-center" flat v-if="likes == null">
+        <v-card class="text-center" flat v-if="comments == null">
           <h5 style="color:grey">还没有评论呢</h5>
         </v-card>
+
         <v-list-item
           class="mb-2 pb-0"
           v-for="(comment,commentIndex) in comments"
           :key="commentIndex"
         >
-          <v-list-item-avatar>
-            <v-avatar>
+          <v-badge
+            class="mr-6"
+            :value="comment.status == 1"
+            bordered
+            color="red"
+            dot
+            offset-x="8"
+            offset-y="14"
+          >
+            <v-avatar size="50">
               <v-img
                 :src="comment.replyAvatarUrl == null ? require('../../../assets/default_avatar.jpg') : comment.replyAvatarUrl"
               ></v-img>
             </v-avatar>
-          </v-list-item-avatar>
+          </v-badge>
+
           <v-list-item-content style="background-color:#F5F5F5" class="px-2 py-0">
             <v-list-item-subtitle class="d-flex justify-space-between">
               <v-card outlined color="rgba(0,0,0,0)" flat style="color:blue">{{comment.replyName}}</v-card>
+
               <v-card
                 outlined
                 color="rgba(0,0,0,0)"
@@ -35,19 +55,32 @@
               class="pa-2 caption"
               style="background-color:#EEEEEE;"
             >{{comment.lid == null ? '评论了您：' : '回复了您：'}}{{comment.commentContent}}</v-list-item-content>
-            <v-list-item-subtitle class="d-flex justify-space-between">
-              <v-card
-                outlined
-                color="rgba(0,0,0,0)"
-                class="caption"
-                flat
-                style="color:#757575"
-              >我的{{comment.lid == null ? '动态' : '评论'}}：{{comment.lastCommentContent}}</v-card>
-              <a
-                class="mr-4 caption"
-                style="line-height:22px;text-decoration:underline"
-                @click="comment.show_input = !comment.show_input"
-              >回复</a>
+            <v-list-item-subtitle>
+              <v-row>
+                <v-col cols="11">
+                  <v-card
+                    outlined
+                    color="rgba(0,0,0,0)"
+                    class="caption"
+                    flat
+                    style="color:#757575;word-break:break-all;display:-webkit-box;
+	                        -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"
+                  >我的{{comment.lid == null ? '动态' : '评论'}}：{{comment.lastCommentContent}}</v-card>
+                </v-col>
+                <v-col class="px-0" cols="1">
+                  <a
+                    class="mr-1 caption"
+                    style="line-height:22px;text-decoration:underline"
+                    @click="comment.show_input = !comment.show_input"
+                  >回复</a>
+                  <a
+                    v-if="comment.status == 1"
+                    class="caption"
+                    style="line-height:22px;text-decoration:underline;color:red"
+                    @click="isRead(comment.id,commentIndex)"
+                  >已读</a>
+                </v-col>
+              </v-row>
             </v-list-item-subtitle>
             <v-divider></v-divider>
             <v-list-item-content class="pa-0" v-show="comment.show_input">
@@ -81,6 +114,7 @@
             </v-list-item-content>
           </v-list-item-content>
         </v-list-item>
+
         <div v-if="totalPage > 1" class="text-center">
           <v-pagination v-model="currentPage" :length="totalPage" :total-visible="7"></v-pagination>
         </div>
@@ -122,10 +156,41 @@ export default {
     currentPage() {
       this.commentRequest.page = this.currentPage;
       this.dealComment();
+    },
+    "$store.state.unreadCommentCount"() {
+      this.dealComment();
     }
   },
   methods: {
     verify,
+    //已读
+    isRead(id, commentIndex) {
+      this.$http({
+        method: "get",
+        url: "/comment/updateStateById",
+        params: {
+          ids: [id],
+          status: "2",
+          respondentId: this.$store.state.userInfo.uid
+        },
+        paramsSerializer: params => {
+          return this.$qs.stringify(params, { indices: false });
+        }
+      }).then(() => {
+        if (commentIndex != null) {
+          this.comments[commentIndex].status = "2";
+          this.$store.dispatch(
+            "changeUnreadCommentCount",
+            (this.$store.state.unreadCommentCount -= 1)
+          );
+        } else {
+          this.$store.dispatch(
+            "changeUnreadCommentCount",
+            (this.$store.state.unreadCommentCount = 0)
+          );
+        }
+      });
+    },
     //新增评论
     addComment(pid, lid, dynamicId, replyId, respondentId, index) {
       // console.log(this.dynamics[index]);

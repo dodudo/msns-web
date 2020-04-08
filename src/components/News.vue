@@ -595,7 +595,7 @@ export default {
           this.snackbar = true;
           this.snackbarText = "评论成功";
           comment = res.data;
-          console.log(comment);
+          // console.log(comment);
         })
         .catch(() => {
           this.snackbar = true;
@@ -874,13 +874,15 @@ export default {
         this.$store.state.userInfo.uid == undefined
       )
         return;
+      // console.log(dynamic.id);
       if (this.likeDynamicIds.indexOf(dynamic.id) != -1) {
         this.$http({
           method: "delete",
           url: `/like`,
           data: {
             likerId: this.$store.state.userInfo.uid,
-            dynamicId: dynamic.id
+            dynamicId: dynamic.id,
+            dynamicAuthorid: dynamic.uid
           }
         }).then(() => {
           this.getLikeDynamic();
@@ -1013,7 +1015,7 @@ export default {
     //当由数据响应时
     responseCallback(fram) {
       // this.dynamicUpdate = !this.dynamicUpdate;
-      console.log("返回" + fram.body);
+      console.log("返回的评论id" + fram.body);
     },
     //连接rabbitmq
     connect() {

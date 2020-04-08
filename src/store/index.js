@@ -13,7 +13,9 @@ export default new Vuex.Store({
     favorState: 0,
     music: {},
     musicIndex: null,
-    dynamicPush: false
+    dynamicPush: false,
+    unreadCommentCount: 0,
+    unreadLikeCount: 0,
   },
   mutations: {
     changeDrawer(state, drawer) {
@@ -42,6 +44,12 @@ export default new Vuex.Store({
     },
     changeDynamicPush(state, dynamicPush) {
       state.dynamicPush = dynamicPush;
+    },
+    changeUnreadCommentCount(state, unreadCommentCount) {
+      state.unreadCommentCount = unreadCommentCount;
+    },
+    changeUnreadLikeCount(state, unreadLikeCount) {
+      state.unreadLikeCount = unreadLikeCount;
     }
   },
   actions: {
@@ -71,6 +79,12 @@ export default new Vuex.Store({
     },
     changeDynamicPush(context, dynamicPush) {
       context.commit("changeDynamicPush", dynamicPush);
+    },
+    changeUnreadCommentCount(context, unreadCommentCount) {
+      context.commit("changeUnreadCommentCount", unreadCommentCount);
+    },
+    changeUnreadLikeCount(context, unreadLikeCount) {
+      context.commit("changeUnreadLikeCount", unreadLikeCount);
     }
   },
   modules: {}

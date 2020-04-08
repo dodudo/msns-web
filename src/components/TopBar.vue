@@ -58,36 +58,18 @@
       scroll-target
     >
       <template v-slot:img="{ props }">
-        <v-img
-          v-bind="props"
-          gradient="to top right, rgba(255,0,0,1), rgba(255,0,0,0)"
-        ></v-img>
+        <v-img v-bind="props" gradient="to top right, rgba(255,0,0,1), rgba(255,0,0,0)"></v-img>
       </template>
 
-      <a
-        class="title"
-        style="text-decoration: none;color:#fff"
-        href="/index/main"
-      >
+      <a class="title" style="text-decoration: none;color:#fff" href="/index/main">
         <v-toolbar-title>Music Social Site</v-toolbar-title>
       </a>
 
-      <v-app-bar-nav-icon
-        v-show="!drawer"
-        @click="min_leftbar = !min_leftbar"
-        icon
-      ></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-show="!drawer" @click="min_leftbar = !min_leftbar" icon></v-app-bar-nav-icon>
 
       <v-row justify="center" align="center" class="mx-auto">
         <v-col align="center" class="pa-0" cols="6">
-          <v-text-field
-            label="您想搜什么"
-            clearable
-            class="mt-6"
-            dense
-            outlined
-            v-model="search"
-          ></v-text-field>
+          <v-text-field label="您想搜什么" clearable class="mt-6" dense outlined v-model="search"></v-text-field>
         </v-col>
         <v-col class="pa-0" cols="1">
           <v-btn @click="toSearch()" link icon>
@@ -98,43 +80,18 @@
 
       <v-btn v-show="drawer" @click="toIndex()" text large>首页</v-btn>
       <v-btn v-show="drawer" @click="toMusic()" text large>音乐</v-btn>
-      <v-btn
-        v-if="userInfo.id != null"
-        v-show="drawer"
-        @click="toDynamic()"
-        text
-        large
-        >动态</v-btn
-      >
-      <v-btn
-        v-if="userInfo.id != null"
-        v-show="drawer"
-        @click="toFavor()"
-        text
-        large
-        >收藏</v-btn
-      >
-      <v-btn
-        v-if="userInfo.id != null"
-        v-show="drawer"
-        @click="toMessage()"
-        text
-        large
-      >
-        <v-badge color="pink" content="6">消息</v-badge>
+      <v-btn v-if="userInfo.id != null" v-show="drawer" @click="toDynamic()" text large>动态</v-btn>
+      <v-btn v-if="userInfo.id != null" v-show="drawer" @click="toFavor()" text large>收藏</v-btn>
+      <v-btn v-if="userInfo.id != null" v-show="drawer" @click="toMessage()" text large>
+        <v-badge
+          color="pink"
+          :value="$store.state.unreadLikeCount+$store.state.unreadCommentCount"
+          :content="$store.state.unreadLikeCount+$store.state.unreadCommentCount"
+        >消息</v-badge>
       </v-btn>
       <span>
-        <v-btn
-          @click="userInfo.id == null ? alertToLogin() : toPersonal()"
-          class="mx-3"
-          text
-          icon
-        >
-          <v-avatar
-            style="position:relative"
-            @mouseover="showCard()"
-            @mouseleave="hideCard()"
-          >
+        <v-btn @click="userInfo.id == null ? alertToLogin() : toPersonal()" class="mx-3" text icon>
+          <v-avatar style="position:relative" @mouseover="showCard()" @mouseleave="hideCard()">
             <img
               :src="
                 userInfo.avatarUrl == null
@@ -208,7 +165,7 @@
               @click="toMessage()"
             >
               <div>消息</div>
-              <div>25</div>
+              <div>{{this.SMSCount}}</div>
             </v-col>
             <v-col
               :style="{ color: color3, cursor: pointer3 }"
@@ -247,13 +204,9 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
 
-                      <v-btn color="green darken-1" text @click="dialog = false"
-                        >抱歉，我点错了</v-btn
-                      >
+                      <v-btn color="green darken-1" text @click="dialog = false">抱歉，我点错了</v-btn>
 
-                      <v-btn color="green darken-1" text @click="deleteCookie()"
-                        >是的，我要退出</v-btn
-                      >
+                      <v-btn color="green darken-1" text @click="deleteCookie()">是的，我要退出</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -276,6 +229,9 @@
   </div>
 </template>
 <script>
+import Stomp from "stompjs";
+import { MQTT_SERVICE, MQTT_USERNAME, MQTT_PASSWORD } from "../mqtt";
+import { verify } from "../verify";
 export default {
   data() {
     return {
@@ -285,6 +241,7 @@ export default {
       states: [], //自动补全联想,
       playStatus: "mdi-play",
       playBtnStatus: true,
+      smsClient: Stomp.client(MQTT_SERVICE),
       hover: false,
       dialog: false,
       items: [
@@ -303,11 +260,15 @@ export default {
       pointer3: "",
       min_leftbar: false,
       userInfo: {},
-      userCountInfo: {}
+      userCountInfo: {},
+      SMSCount: 0
     };
   },
   created() {
-    this.verify();
+    this.verify().then(() => {
+      this.getSMSCount();
+    });
+    this.connect();
   },
   watch: {
     userInfo() {
@@ -318,6 +279,73 @@ export default {
     }
   },
   methods: {
+    async getSMSCount() {
+      var count = 0;
+      await this.getUnreadCommentCount().then(res => {
+        count += res;
+      });
+      await this.getUnreadLikeCount().then(res => {
+        count += res;
+        // console.log(count);
+      });
+
+      this.SMSCount = count;
+      // console.log(this.SMSCount);
+    },
+    //查询未读评论数
+    async getUnreadCommentCount() {
+      var count = 0;
+      await this.$http({
+        method: "get",
+        url: `/comment/countsByRespondentId/${this.$store.state.userInfo.uid}`
+      }).then(res => {
+        count += res.data;
+        this.$store.dispatch("changeUnreadCommentCount", res.data);
+      });
+      // console.log(count);
+      return count;
+    },
+    //查询未读点赞数
+    async getUnreadLikeCount() {
+      var count = 0;
+      await this.$http({
+        method: "get",
+        url: `/like/countsByDynamicAuthorid/${this.$store.state.userInfo.uid}`
+      }).then(res => {
+        count += res.data;
+        this.$store.dispatch("changeUnreadLikeCount", res.data);
+      });
+      return count;
+    },
+    //初始连接
+    onConnected() {
+      //订阅频道
+      const topic = `/exchange/msns.sms.exchange/sms.${this.$store.state.userInfo.uid}`;
+      this.smsClient.subscribe(topic, this.responseCallback, this.onFailed);
+      // console.log(fram);
+    },
+    //当失败时
+    onFailed(fram) {
+      console.log(fram);
+      // console.log(fram.code);
+    },
+    //当由数据响应时
+    responseCallback(fram) {
+      // this.dynamicUpdate = !this.dynamicUpdate;
+      // alert("收到消息啦！" + fram.body);
+      this.getSMSCount();
+      console.log("返回用户id" + fram.body);
+    },
+    //连接rabbitmq
+    connect() {
+      const headers = {
+        login: MQTT_USERNAME,
+        passcode: MQTT_PASSWORD,
+        host: "/msns",
+        "heart-beat": "0,0"
+      };
+      this.smsClient.connect(headers, this.onConnected, this.onFailed);
+    },
     getUserCountInfo() {
       this.$http({
         method: "get",
@@ -347,23 +375,7 @@ export default {
           alert("退出失败！");
         });
     },
-    verify() {
-      this.$http({
-        method: "get",
-        url: "/auth/verify"
-      })
-        .then(resp => {
-          this.userInfo = resp.data;
-          this.$store.dispatch("changeUserInfo", resp.data);
-          // console.log(this.$store.state.userInfo);
-
-          // console.log(this.userInfo);
-        })
-        .catch(() => {
-          this.userInfo = {};
-          this.$store.dispatch("changeUserInfo", this.userInfo);
-        });
-    },
+    verify,
     querySelections(v) {
       this.loading = true;
       // Simulated ajax query
