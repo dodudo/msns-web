@@ -1,9 +1,9 @@
 <template>
   <v-card flat width="700" class="mx-auto">
-    <v-card flat>
-      <v-card flat class="mx-auto pa-0" width="700" v-show="dynamics[0] == undefined">
-        <v-card-text style="text-align:center">没有动态呢</v-card-text>
-      </v-card>
+    <v-card flat class="mx-auto pa-0" width="700" v-show="dynamics[0].id == undefined">
+      <v-card-text style="text-align:center">没有动态呢</v-card-text>
+    </v-card>
+    <v-card v-if="dynamics[0].id != undefined" flat>
       <v-card
         v-for="(dynamic, index) in dynamics"
         :key="index"

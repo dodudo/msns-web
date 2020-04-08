@@ -194,6 +194,7 @@ export default {
     //新增评论
     addComment(pid, lid, dynamicId, replyId, respondentId, index) {
       // console.log(this.dynamics[index]);
+      console.log(dynamicId);
 
       if (
         this.comments[index].commentInputContent == undefined ||
