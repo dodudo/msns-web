@@ -13,19 +13,24 @@
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field
                     solo
+                    outlined
                     flat
-                    style="border-radius:24px"
+                    style="border-radius:30px"
                     v-model="name"
                     :counter="10"
+                    background-color="rgba(255,255,255,.4)"
                     :rules="nameRules"
                     label="用户名"
                     required
                   ></v-text-field>
 
                   <v-text-field
-                    flat
                     solo
-                    style="border-radius:24px"
+                    outlined
+                    background-color="rgba(255,255,255,.4)"
+                    flat
+                    type="password"
+                    style="border-radius:30px;"
                     v-model="password"
                     :rules="passwordRules"
                     label="密码"
@@ -33,13 +38,7 @@
                   ></v-text-field>
 
                   <div class="d-flex justify-center">
-                    <v-btn
-                      class="mx-autos"
-                      :disabled="!valid"
-                      color="#fb864c"
-                      @click="validate"
-                      >登录</v-btn
-                    >
+                    <v-btn class="mx-autos" :disabled="!valid" color="#fb864c" @click="validate">登录</v-btn>
                   </div>
                 </v-form>
               </v-card-text>
@@ -51,6 +50,7 @@
   </v-app>
 </template>
 <script>
+import { verifyAdmin } from "../../verifyAdmin";
 export default {
   data: () => ({
     valid: true,
@@ -67,13 +67,24 @@ export default {
   }),
 
   methods: {
+    verifyAdmin,
     validate() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
+        this.$http({
+          method: "post",
+          url: "/admin/accredit",
+          params: { aname: this.name, apassword: this.password }
+        })
+          .then(() => {
+            // console.log(resp.data);
+            this.verifyAdmin();
+            this.$router.push("/admin/dynamic/list");
+          })
+          .catch(err => {
+            console.log(err);
+          });
       }
-    },
-    toRegister() {
-      this.$router.push("/register");
     }
   }
 };

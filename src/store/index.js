@@ -8,6 +8,7 @@ export default new Vuex.Store({
     drawer: true,
     playing: false,
     userInfo: {},
+    adminInfo: {},
     userCountInfo: {},
     user: {},
     favorState: 0,
@@ -50,6 +51,9 @@ export default new Vuex.Store({
     },
     changeUnreadLikeCount(state, unreadLikeCount) {
       state.unreadLikeCount = unreadLikeCount;
+    },
+    changeAdminInfo(state, adminInfo) {
+      state.adminInfo = adminInfo;
     }
   },
   actions: {
@@ -85,6 +89,9 @@ export default new Vuex.Store({
     },
     changeUnreadLikeCount(context, unreadLikeCount) {
       context.commit("changeUnreadLikeCount", unreadLikeCount);
+    },
+    changeAdminInfo(context, adminInfo) {
+      context.commit("changeAdminInfo", adminInfo);
     }
   },
   modules: {}

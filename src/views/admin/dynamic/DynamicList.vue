@@ -9,7 +9,7 @@
       v-model="selected"
       no-data-text="啊，没有数据呢"
       :loading="loading"
-      class="elevation-1 mx-5 "
+      class="elevation-1 mx-5"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -25,14 +25,18 @@
         </v-toolbar>
       </template>
       <template v-slot:item.publishDate="{ item }">
-        <v-card color="rgba(0,0,0,0)" flat>{{
+        <v-card color="rgba(0,0,0,0)" flat>
+          {{
           formatDate(new Date(item.publishDate))
-        }}</v-card>
+          }}
+        </v-card>
       </template>
       <template v-slot:item.dynamicContent="{ item }">
-        <v-card color="rgba(0,0,0,0)" width="200" flat class="content">{{
+        <v-card color="rgba(0,0,0,0)" width="200" flat class="content">
+          {{
           item.dynamicContent
-        }}</v-card>
+          }}
+        </v-card>
       </template>
       <template v-slot:item.typeStatusBoolean="{ item }">
         <v-switch
@@ -76,7 +80,7 @@ export default {
         value: "dynamicContent",
         sortable: false
       },
-      { text: "发布者", value: "uname", sortable: false },
+      { text: "发布者id", value: "uid", sortable: false },
       { text: "发布日期", value: "publishDate" },
       { text: "操作", value: "action", sortable: false }
     ],

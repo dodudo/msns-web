@@ -37,15 +37,16 @@
           <v-spacer></v-spacer>
           <v-menu offset-y>
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" icon>
+              <v-btn @click="queryIsMutual(index)" v-on="on" icon>
                 <v-icon color="gray">mdi-chevron-down</v-icon>
               </v-btn>
             </template>
             <v-list>
+              <v-btn @click="favor(index)" text>{{dynamic.userFavor ? '已关注' : '关注'}}</v-btn>
               <v-dialog v-model="dialog" max-width="600px">
-                <template v-slot:activator="{ on }">
+                <!-- <template v-slot:activator="{ on }">
                   <v-btn text small v-on="on">举报</v-btn>
-                </template>
+                </template>-->
                 <v-card>
                   <v-card-title>
                     <span class="headline">举报</span>
@@ -456,6 +457,85 @@ export default {
     snackbar: false
   }),
   methods: {
+    //关注
+    favor(index) {
+      if (this.dynamics[index].userFavor == true) {
+        if (confirm(`您确定要取消关注吗？`)) {
+          this.dynamics[index].userFavor = false;
+          this.$http({
+            method: "delete",
+            url: `/user/follow`,
+            params: {
+              followersId: this.$store.state.userInfo.uid,
+              befollowersId: this.dynamics[index].uid
+            },
+            paramsSerializer: params => {
+              return this.$qs.stringify(params, { indices: false });
+            }
+          })
+            .then(() => {
+              this.snackbar = true;
+              this.snackbarText = "取消关注成功";
+            })
+            .catch(() => {
+              this.snackbar = true;
+              this.snackbarText = "取消关注失败！";
+            });
+        }
+      } else {
+        this.dynamics[index].userFavor = true;
+        this.$http({
+          method: "post",
+          url: `/user/follow`,
+          params: {
+            followersId: this.$store.state.userInfo.uid,
+            befollowersId: this.dynamics[index].uid
+          },
+          paramsSerializer: params => {
+            return this.$qs.stringify(params, { indices: false });
+          }
+        })
+          .then(() => {
+            this.snackbar = true;
+            this.snackbarText = "关注成功";
+          })
+          .catch(() => {
+            this.snackbar = true;
+            this.snackbarText = "关注失败！";
+          });
+      }
+      let obj = Object.assign({}, this.dynamics[index]);
+      this.$set(this.dynamics, index, obj);
+    },
+    //查询有没有关注
+    queryIsMutual(index) {
+      if (this.dynamics[index].uid == null) {
+        return;
+      }
+      this.$http
+        .get("/user/follow/queryIsMutual", {
+          params: {
+            uids: [this.dynamics[index].uid],
+            currentUid: this.$store.state.userInfo.uid
+          },
+          paramsSerializer: params => {
+            return this.$qs.stringify(params, { indices: false });
+          }
+        })
+        .then(resp => {
+          // console.log(resp.data);
+
+          var mutualIds = resp.data;
+          // console.log(this.peopleItems.length);
+          if (mutualIds[0] == this.dynamics[index].uid) {
+            this.dynamics[index].userFavor = true;
+          }
+          console.log(this.dynamics[index]);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     //添加子评论
     addSonComment(dynamicIndex, commentIndex) {
       //验证
@@ -774,7 +854,7 @@ export default {
       // console.log(this.dynamicSearch);
       // console.log(this.queryFavor);
       if (this.queryFavor && this.dynamicSearch.ids.length == 0) {
-        console.log(this.dynamicSearch);
+        // console.log(this.dynamicSearch);
         this.dynamics = [];
         return;
       }
@@ -794,6 +874,7 @@ export default {
           this.dynamics[i].show_input = false;
           this.dynamics[i].valid = true;
           this.dynamics[i].commentContent = "";
+          this.dynamics[i].userFavor = false;
           let user = {};
           // 根据用户id查询头像和用户名
           this.getUserNameAndAvatar(this.dynamics[i].uid).then(res => {

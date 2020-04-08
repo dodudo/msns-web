@@ -1,12 +1,13 @@
-var menus = [{
-    action: "mdi-home-city-outline",
-    title: "首页",
-    path: "/admin",
-    items: [{
-      title: "统计",
-      path: "/main"
-    }]
-  },
+var menus = [
+  // {
+  //   action: "mdi-home-city-outline",
+  //   title: "首页",
+  //   path: "/admin",
+  //   items: [{
+  //     title: "统计",
+  //     path: "/main"
+  //   }]
+  // },
   {
     action: "mdi-star-face",
     title: "动态",

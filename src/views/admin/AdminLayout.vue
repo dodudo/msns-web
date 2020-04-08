@@ -10,16 +10,10 @@
       enable-resize-watcher
     >
       <v-list>
-        <v-list-item class="px-2">
-          <!-- 左侧导航栏头像 -->
-          <v-list-item-avatar>
-            <v-img src="https://randomuser.me/api/portraits/men/85.jpg"></v-img>
-          </v-list-item-avatar>
-        </v-list-item>
         <!-- 左侧导航栏昵称 -->
         <v-list-item link>
           <v-list-item-content>
-            <v-list-item-title class="title">Sandra Adams</v-list-item-title>
+            <v-list-item-title class="title text-center">{{this.$store.state.adminInfo.uname}}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -64,9 +58,7 @@
         <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
         <!-- 收起左侧菜单的按钮-->
         <v-btn class="ml-2" icon @click.stop="miniVariant = !miniVariant">
-          <v-icon
-            v-html="miniVariant ? 'mdi-chevron-right' : 'mdi-chevron-left'"
-          />
+          <v-icon v-html="miniVariant ? 'mdi-chevron-right' : 'mdi-chevron-left'" />
         </v-btn>
         <!-- 顶部导航标题 -->
         <v-flex xs3></v-flex>
@@ -74,8 +66,9 @@
         <v-spacer />
 
         <!-- 顶部导航用户菜单 -->
-        <v-btn icon>
-          <v-icon>mdi-account-box</v-icon>
+        <v-btn text dark @click="loginOut()">
+          <v-icon>mdi-account-box</v-icon>退出登录
+          <h5 style="color: rgb(255,255,255)">({{this.$store.state.adminInfo.uname}})</h5>
         </v-btn>
       </v-toolbar>
 
@@ -88,7 +81,7 @@
 </template>
 <script>
 import menus from "../../assets/menu";
-
+import { verifyAdmin } from "../../verifyAdmin";
 export default {
   data() {
     return {
@@ -139,6 +132,7 @@ export default {
   name: "App",
   watch: {},
   created() {
+    this.verifyAdmin();
     menus.forEach(m => {
       const p1 = m.path.slice(1);
       this.menuMap[p1] = { name: m.title };
@@ -147,6 +141,24 @@ export default {
       });
     });
     // console.log(this.menuMap);
+  },
+  methods: {
+    verifyAdmin,
+    loginOut() {
+      if (confirm("您确定要退出吗？")) {
+        this.$http({
+          method: "get",
+          url: "/admin/deleteCookie"
+        })
+          .then(() => {
+            this.dialog = false;
+            location.reload();
+          })
+          .catch(() => {
+            alert("退出失败！");
+          });
+      }
+    }
   }
 };
 </script>
